@@ -1,24 +1,56 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+
+import LoginPage from "./pages/LoginPage";
+import Home from "./pages/Dashboard";
+import { AuthProvider } from "./services/FirebaseAuthContext";
+import ProtectedRoute from "./services/ProtectedRoute";
+import PageNotFound from "./pages/PageNotFound";
+import { ROUTES } from "./constant/routes";
+import { CircularProgress } from "@mui/material";
+import VerifEmail from "./services/VerifEmail";
+import LandingPage from "./pages/LandingPage";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <AuthProvider>
+        <Routes>
+          <Route exact path={ROUTES.HOME} element={<LandingPage />} />
+          <Route exact path={ROUTES.LOGIN} element={<LoginPage />} />
+          <Route
+            path={ROUTES.DASHBOARD}
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={ROUTES.EMAILVERIF}
+            element={
+              <VerifEmail>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: "100vh",
+                  }}
+                >
+                  <div style={{ textAlign: "center" }}>
+                    <CircularProgress />
+                    <br />
+                    <br />
+                    <text>Check your email for verification</text>
+                  </div>
+                </div>
+              </VerifEmail>
+            }
+          />
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      </AuthProvider>
+    </Router>
   );
 }
 

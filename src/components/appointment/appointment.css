@@ -1,0 +1,29 @@
+.appointment {
+  background-color: #fffff0;
+  width: 30%;
+  padding: 30px;
+  text-align: center;
+}
+
+.appointment-title {
+  font-size: x-large;
+}
+
+.appointment form {
+  display: flex;
+  flex-direction: column;
+}
+
+.required {
+  text-align: end;
+  margin: 10px 0;
+}
+
+.center {
+  text-align: center;
+}
+
+.appointment form .appointment-item {
+  margin-bottom: 20px;
+  text-align: start;
+}
