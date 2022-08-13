@@ -6,7 +6,7 @@ import { useAuth } from "./FirebaseAuthContext";
 export default function ProtectedRoute({ children }) {
   const { currentUser } = useAuth();
 
-  return currentUser ? (
+  return currentUser != null ? (
     currentUser.emailVerified ? (
       children
     ) : (

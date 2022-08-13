@@ -17,10 +17,9 @@ import { useAuth } from "../../services/FirebaseAuthContext";
 import moment from "moment";
 import { toast, ToastContainer } from "react-toastify";
 
-export default function Appointment() {
+export default function AppointmentUser() {
   const { currentUser } = useAuth("");
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
   const [doctor, setDoctor] = useState("Dokter Umum");
@@ -41,13 +40,7 @@ export default function Appointment() {
   ];
 
   const handleValidation = () => {
-    if (
-      name !== "" &&
-      email !== "" &&
-      address1 !== "" &&
-      date !== null &&
-      doctor !== null
-    ) {
+    if (name !== "" && address1 !== "" && date !== null && doctor !== null) {
       postData();
       setError(false);
     } else {
@@ -55,9 +48,16 @@ export default function Appointment() {
     }
   };
 
+  const handleAccessToken = () => {
+    if (currentUser.photoUrl !== "") {
+      return currentUser.accessToken;
+    } else {
+      return currentUser["stsTokenManager"]["accessToken"];
+    }
+  };
+
   const setDefault = () => {
     setName("");
-    setEmail("");
     setAddress1("");
     setAddress2("");
   };
@@ -67,7 +67,7 @@ export default function Appointment() {
     const data = {
       uid: currentUser.uid,
       name: name,
-      email: email,
+      email: currentUser.email,
       address: `${address1}.` + address2 || "",
       option: doctor,
       date: appointmentDate,
@@ -75,9 +75,10 @@ export default function Appointment() {
     };
     try {
       setLoading(true);
+      const token = handleAccessToken();
       const res = await axios.post("http://localhost:5000/api/addData", data, {
         headers: {
-          Authorization: `Bearer ${currentUser.accessToken}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       if (res.data["message"] === "Success") {
@@ -133,17 +134,6 @@ export default function Appointment() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your Name"
-              variant="outlined"
-            />
-            <br />
-            <TextField
-              id="email"
-              label="Email"
-              required
-              className="appointment-item"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your Email"
               variant="outlined"
             />
             <br />

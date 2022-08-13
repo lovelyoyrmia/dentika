@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import Appointment from "../components/appointment/Appointment";
-import Topbar from "../components/topbar/Topbar";
+import AppointmentUser from "../components/appointment/AppointmentUser";
+import Navbar from "../components/navbar/Navbar";
+// import Topbar from "../components/topbar/Topbar";
 import { ROUTES } from "../constant/routes";
 import { useAuth } from "../services/FirebaseAuthContext";
 
@@ -18,8 +19,10 @@ export default function Home() {
   };
 
   return (
-    <div>
-      <Appointment />
-    </div>
+    <>
+      <Navbar handleLogout={handleLogout} />
+      <AppointmentUser />
+      {/* <div>{JSON.stringify(currentUser)}</div> */}
+    </>
   );
 }

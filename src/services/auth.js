@@ -2,9 +2,10 @@ import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
 } from "firebase/auth";
-import { auth } from "../config/firebase-config";
+import { auth, provider } from "../config/firebase-config";
 
 export default class Authentication {
   constructor() {
@@ -56,6 +57,10 @@ export default class Authentication {
   };
   sendEmailVerification = async (user) => {
     await sendEmailVerification(user);
+  };
+
+  signInWithGoogle = async () => {
+    await signInWithPopup(auth, provider);
   };
 
   logout = async () => {

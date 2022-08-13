@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TextField, Typography, Fab, Box } from "@mui/material";
+import { TextField, Typography, Fab, Box, Chip, Avatar } from "@mui/material";
 import { useAuth } from "../services/FirebaseAuthContext";
 import CircularProgress from "@mui/material/CircularProgress";
 import "./css/login.css";
@@ -13,7 +13,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [regis, setRegis] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signUp, signIn } = useAuth();
+  const { signUp, signIn, googleSignIn } = useAuth();
 
   const navigate = useNavigate();
 
@@ -47,6 +47,20 @@ export default function LoginPage() {
     setLoading(false);
   };
 
+  const handleGoogle = async () => {
+    try {
+      await googleSignIn();
+      navigate(ROUTES.DASHBOARD);
+    } catch (error) {
+      const err = handleString(error.code);
+      toast.error(err, {
+        position: "top-center",
+        autoClose: 5000,
+        draggable: false,
+      });
+    }
+  };
+
   const handleString = (res) => {
     let resp = res.split("/")[1];
     resp = resp.replace(/-/g, " ");
@@ -67,7 +81,7 @@ export default function LoginPage() {
       <Box className="login-wrapper">
         <form noValidate>
           <TextField
-            id="outlined-basic"
+            id="email"
             label="Email"
             variant="outlined"
             value={email}
@@ -75,7 +89,7 @@ export default function LoginPage() {
           />
           <br />
           <TextField
-            id="outlined-basic"
+            id="password"
             label="Password"
             variant="outlined"
             type={"password"}
@@ -141,6 +155,19 @@ export default function LoginPage() {
           </span>
         </Typography>
       )}
+      <div onClick={handleGoogle}>
+        <Chip
+          size="large"
+          avatar={
+            <Avatar
+              alt="Google"
+              src="https://cdn-icons-png.flaticon.com/512/300/300221.png"
+            />
+          }
+          label="Sign in with Google"
+          variant="outlined"
+        />
+      </div>
       <ToastContainer />
     </div>
   );

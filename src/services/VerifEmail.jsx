@@ -12,10 +12,6 @@ export default function VerifEmail({ children }) {
 
   const checkEmailVerified = useCallback(() => {
     if (interval.current) {
-      if (interval.current === 10000) {
-        clearTimeout(interval.current);
-        setLoading(true);
-      }
       if (currentUser.emailVerified === emailVerified) {
         setEmailVerified(currentUser.emailVerified);
         setLoading(false);
@@ -25,18 +21,23 @@ export default function VerifEmail({ children }) {
     }
   }, [currentUser, emailVerified]);
   useEffect(() => {
-    if (!currentUser.emailVerified) {
+    if (currentUser !== null && !currentUser.emailVerified) {
       sendEmailVerif();
       interval.current = setTimeout(checkEmailVerified, 10 * 1000);
     } else {
+      console.log(currentUser);
       setEmailVerified(true);
       setLoading(false);
     }
   }, [currentUser, emailVerified, sendEmailVerif, checkEmailVerified]);
 
-  return emailVerified && !loading ? (
-    <Navigate to={ROUTES.DASHBOARD} />
-  ) : (
-    children
-  );
+  if (currentUser !== null) {
+    if (emailVerified && !loading) {
+      return <Navigate to={ROUTES.DASHBOARD} />;
+    } else {
+      return children;
+    }
+  } else {
+    return <Navigate to={ROUTES.LOGIN} />;
+  }
 }

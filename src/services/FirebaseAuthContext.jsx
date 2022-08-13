@@ -22,6 +22,9 @@ export function AuthProvider({ children }) {
   const sendEmailVerif = () => {
     return new Authentication().sendEmailVerification(currentUser);
   };
+  const googleSignIn = () => {
+    return new Authentication().signInWithGoogle();
+  };
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setCurrentUser(user);
@@ -35,6 +38,7 @@ export function AuthProvider({ children }) {
     signIn,
     signOut,
     sendEmailVerif,
+    googleSignIn,
   };
   return (
     <AuthContext.Provider value={value}>

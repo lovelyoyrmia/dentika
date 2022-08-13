@@ -41,7 +41,7 @@ function App() {
                     <CircularProgress />
                     <br />
                     <br />
-                    <text>Check your email for verification</text>
+                    <div>Check your email for verification</div>
                   </div>
                 </div>
               </VerifEmail>
