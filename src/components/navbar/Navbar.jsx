@@ -11,15 +11,26 @@ import {
   Avatar,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import { ROUTES } from "../../constant/routes";
+import { Link, useNavigate } from "react-router-dom";
 import AdbIcon from "@mui/icons-material/Adb";
 import React, { useState } from "react";
 import { AppBar } from "../topbar/TopbarComponents";
 import { useAuth } from "../../services/FirebaseAuthContext";
 
-export default function Navbar({ handleLogout }) {
-  const { currentUser } = useAuth();
+export default function Navbar() {
+  const { currentUser, signOut } = useAuth();
   const [anchorElNav, setAnchorElNav] = useState();
   const [anchorElUser, setAnchorElUser] = useState();
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate(ROUTES.LOGIN);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
@@ -36,12 +47,18 @@ export default function Navbar({ handleLogout }) {
   };
 
   const pages = ["Products", "Pricing", "Blog"];
-  const settings = ["Profile", "Account", "Dashboard", "Logout"];
+  // const settings = [
+  //   { id: 1, value: "Profile" },
+  //   { id: 2, value: "Account" },
+  //   { id: 3, value: "Dashboard" },
+  //   { id: 4, value: "Logout" },
+  // ];
+
   return (
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Typography
+          {/* <Typography
             onClick={handleLogout}
             variant="h6"
             noWrap
@@ -49,8 +66,8 @@ export default function Navbar({ handleLogout }) {
             sx={{ display: { xs: "none", sm: "block" } }}
           >
             {currentUser.email}
-          </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+          </Typography> */}
+          <Box sx={{ flexGrow: 1, display: { sm: "flex", md: "none" } }}>
             <IconButton
               size="large"
               aria-label="account of current user"
@@ -76,7 +93,7 @@ export default function Navbar({ handleLogout }) {
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
               sx={{
-                display: { xs: "block", md: "none" },
+                display: { sm: "block", md: "none" },
               }}
             >
               {pages.map((page) => (
@@ -86,7 +103,7 @@ export default function Navbar({ handleLogout }) {
               ))}
             </Menu>
           </Box>
-          <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
+          <AdbIcon sx={{ display: { sm: "flex", md: "none" }, mr: 1 }} />
           <Typography
             variant="h5"
             noWrap
@@ -94,7 +111,7 @@ export default function Navbar({ handleLogout }) {
             href=""
             sx={{
               mr: 2,
-              display: { xs: "flex", md: "none" },
+              display: { sm: "flex", md: "none" },
               flexGrow: 1,
               fontFamily: "monospace",
               fontWeight: 700,
@@ -105,7 +122,12 @@ export default function Navbar({ handleLogout }) {
           >
             LOGO
           </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: { xs: "none", md: "flex" },
+            }}
+          >
             {pages.map((page) => (
               <Button
                 key={page}
@@ -120,7 +142,7 @@ export default function Navbar({ handleLogout }) {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Photo" src={currentUser.photoURL} />
+                <Avatar alt="Photo" src={currentUser.photoURL || ""} />
               </IconButton>
             </Tooltip>
             <Menu
@@ -139,11 +161,19 @@ export default function Navbar({ handleLogout }) {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
+              <MenuItem key={1}>
+                <Link to={ROUTES.PROFILE} className="link">
+                  <Typography textAlign="center">Profile</Typography>
+                </Link>
+              </MenuItem>
+              <MenuItem key={2} onClick={handleCloseUserMenu}>
+                <Link to={ROUTES.DASHBOARD} className="link">
+                  <Typography textAlign="center">Dashboard</Typography>
+                </Link>
+              </MenuItem>
+              <MenuItem key={3} onClick={handleLogout}>
+                <Typography textAlign="center">Logout</Typography>
+              </MenuItem>
             </Menu>
           </Box>
         </Toolbar>

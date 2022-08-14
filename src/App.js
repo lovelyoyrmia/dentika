@@ -9,6 +9,7 @@ import { ROUTES } from "./constant/routes";
 import { CircularProgress } from "@mui/material";
 import VerifEmail from "./services/VerifEmail";
 import LandingPage from "./pages/LandingPage";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -45,6 +46,14 @@ function App() {
                   </div>
                 </div>
               </VerifEmail>
+            }
+          />
+          <Route
+            path={ROUTES.PROFILE}
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
             }
           />
           <Route path="*" element={<PageNotFound />} />

@@ -16,6 +16,7 @@ import "./appointment.css";
 import { useAuth } from "../../services/FirebaseAuthContext";
 import moment from "moment";
 import { toast, ToastContainer } from "react-toastify";
+import { handleAccessToken } from "../../utils/utils";
 
 export default function AppointmentUser() {
   const { currentUser } = useAuth("");
@@ -48,14 +49,6 @@ export default function AppointmentUser() {
     }
   };
 
-  const handleAccessToken = () => {
-    if (currentUser.photoUrl !== "") {
-      return currentUser.accessToken;
-    } else {
-      return currentUser["stsTokenManager"]["accessToken"];
-    }
-  };
-
   const setDefault = () => {
     setName("");
     setAddress1("");
@@ -75,7 +68,7 @@ export default function AppointmentUser() {
     };
     try {
       setLoading(true);
-      const token = handleAccessToken();
+      const token = handleAccessToken(currentUser);
       const res = await axios.post("http://localhost:5000/api/addData", data, {
         headers: {
           Authorization: `Bearer ${token}`,

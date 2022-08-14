@@ -155,19 +155,26 @@ export default function LoginPage() {
           </span>
         </Typography>
       )}
-      <div onClick={handleGoogle}>
-        <Chip
-          size="large"
-          avatar={
-            <Avatar
-              alt="Google"
-              src="https://cdn-icons-png.flaticon.com/512/300/300221.png"
-            />
-          }
-          label="Sign in with Google"
-          variant="outlined"
-        />
-      </div>
+
+      <Chip
+        onClick={handleGoogle}
+        // onDelete={}
+        size="large"
+        avatar={
+          <Avatar
+            alt="Google"
+            src="https://cdn-icons-png.flaticon.com/512/300/300221.png"
+          />
+        }
+        label="Sign in with Google"
+        variant="outlined"
+        sx={{
+          py: 2.5,
+          px: 1,
+          cursor: "pointer",
+        }}
+      />
+
       <ToastContainer />
     </div>
   );
