@@ -1,10 +1,17 @@
 import React, { useState } from "react";
-import { TextField, Typography, Fab, Box, Chip, Avatar } from "@mui/material";
+import {
+  TextField,
+  Typography,
+  Fab,
+  Box,
+  Chip,
+  Avatar,
+} from "@mui/material";
 import { useAuth } from "../services/FirebaseAuthContext";
 import CircularProgress from "@mui/material/CircularProgress";
 import "./css/login.css";
 import { ToastContainer, toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ROUTES } from "../constant/routes";
 
@@ -27,7 +34,6 @@ export default function LoginPage() {
   const handleDefault = () => {
     setEmail("");
     setPassword("");
-    // handleClose();
   };
 
   const handleSubmit = async () => {
@@ -96,7 +102,12 @@ export default function LoginPage() {
             value={password}
             onChange={handlePasswordChange}
           />
-          <br />
+          <Typography sx={{ textAlign: "end", my: 1 }}>
+            <Link to={ROUTES.RESET_PASSWORD} className="link">
+              Forgot Password?
+            </Link>
+          </Typography>
+
           {loading ? (
             <div className="circular">
               <CircularProgress />

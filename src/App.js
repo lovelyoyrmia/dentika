@@ -10,11 +10,14 @@ import { CircularProgress } from "@mui/material";
 import VerifEmail from "./services/VerifEmail";
 import LandingPage from "./pages/LandingPage";
 import Profile from "./pages/Profile";
+import ForgotPassword from "./pages/ForgotPassword";
+import NavbarWrapper from "./components/navbar/NavbarWrapper";
 
 function App() {
   return (
     <Router>
       <AuthProvider>
+        <NavbarWrapper />
         <Routes>
           <Route exact path={ROUTES.HOME} element={<LandingPage />} />
           <Route exact path={ROUTES.LOGIN} element={<LoginPage />} />
@@ -56,6 +59,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path={ROUTES.RESET_PASSWORD} element={<ForgotPassword />} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </AuthProvider>

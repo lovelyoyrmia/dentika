@@ -22,8 +22,17 @@ export function AuthProvider({ children }) {
   const sendEmailVerif = () => {
     return new Authentication().sendEmailVerification(currentUser);
   };
+  const updateEmail = (email) => {
+    return new Authentication().updateProfileEmail(currentUser, email);
+  };
+  const updatePassword = (password) => {
+    return new Authentication().updateProfilePassword(currentUser, password);
+  };
   const googleSignIn = () => {
     return new Authentication().signInWithGoogle();
+  };
+  const resetPasswordUser = (email) => {
+    return new Authentication().resetPassword(email);
   };
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -39,6 +48,9 @@ export function AuthProvider({ children }) {
     signOut,
     sendEmailVerif,
     googleSignIn,
+    updateEmail,
+    updatePassword,
+    resetPasswordUser,
   };
   return (
     <AuthContext.Provider value={value}>

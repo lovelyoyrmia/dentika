@@ -4,6 +4,7 @@ import {
   Button,
   CircularProgress,
   Box,
+  Alert,
   Grid,
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
@@ -84,7 +85,7 @@ export default function AppointmentUser() {
         });
       }
     } catch (error) {
-      alert(error);
+      alert(error.message);
     }
     setLoading(false);
   };
@@ -115,7 +116,11 @@ export default function AppointmentUser() {
             alignItems="strech"
           >
             {error ? (
-              <div className="required">* Indicates a required field</div>
+              <div>
+                <Alert severity="error" sx={{ my: 2 }}>
+                  Indicates a required field
+                </Alert>
+              </div>
             ) : (
               <br />
             )}

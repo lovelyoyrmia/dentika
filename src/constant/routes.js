@@ -4,4 +4,5 @@ export const ROUTES = {
   LOGIN: "/login",
   EMAILVERIF: "/emailverification",
   PROFILE: "/profile",
+  RESET_PASSWORD: "/resetpassword",
 };

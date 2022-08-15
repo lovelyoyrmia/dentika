@@ -2,15 +2,38 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../services/FirebaseAuthContext";
 import axios from "axios";
 import { handleAccessToken } from "../utils/utils";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Alert } from "@mui/material";
 
 export default function Profile() {
   const { signOut, currentUser } = useAuth();
   const [data, setData] = useState([]);
+  const token = handleAccessToken(currentUser);
+
+  const deleteData = async (role, id, email) => {
+    try {
+      const res = await axios.post(
+        `http://localhost:5000/api/deleteId/${id}`,
+        {
+          role: role,
+          email: email,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (res.data["message"] === "Success") {
+        window.location.reload(false);
+      }
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   useEffect(() => {
     const getDataEmail = async () => {
       const req = { role: "USER", email: currentUser.email };
-      const token = handleAccessToken(currentUser);
 
       const res = await axios.post(
         "http://localhost:5000/api/getDataByEmail",
@@ -24,12 +47,19 @@ export default function Profile() {
       setData(res.data["data"]);
     };
     getDataEmail();
-  }, [currentUser]);
+  }, [currentUser, token]);
   if (data && currentUser) {
     return (
       <div>
         {data.map((appoint) => (
-          <div>{appoint.appointmentDate}</div>
+          <div
+            key={appoint.docId}
+            onClick={() => {
+              deleteData("USER", appoint.docId, appoint.email);
+            }}
+          >
+            {appoint.name}
+          </div>
         ))}
       </div>
     );
@@ -43,9 +73,10 @@ export default function Profile() {
           justifyContent: "center",
           display: "flex",
           flexDirection: "column",
+          // fontSize: ''
         }}
       >
-        No Data.
+        <Alert severity="info">There is no data!</Alert>
       </div>
     );
   }
