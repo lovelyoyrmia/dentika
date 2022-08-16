@@ -161,7 +161,7 @@ export default function Navbar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              <MenuItem key={1}>
+              <MenuItem key={1} onClick={handleCloseUserMenu}>
                 <Link to={ROUTES.PROFILE} className="link">
                   <Typography textAlign="center">Profile</Typography>
                 </Link>

@@ -12,19 +12,33 @@ import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import SendIcon from "@mui/icons-material/Send";
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./appointment.css";
 import { useAuth } from "../../services/FirebaseAuthContext";
 import moment from "moment";
 import { toast, ToastContainer } from "react-toastify";
 import { handleAccessToken } from "../../utils/utils";
+import indonesia from "indonesia-cities-regencies";
 
 export default function AppointmentUser() {
   const { currentUser } = useAuth("");
+  const [state, setState] = useState({
+    name: "",
+    address1: "",
+    address2: "",
+    city: "",
+    doctor: "",
+    date: new Date(),
+  });
   const [name, setName] = useState("");
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
   const [doctor, setDoctor] = useState("Dokter Umum");
+  const [city, setCity] = useState("");
+  const [province, setProvince] = useState("");
+  const [cities, setCities] = useState([]);
+  const [regencies, setRegencies] = useState([]);
+  const [provinces, setProvinces] = useState([]);
   const [date, setDate] = useState(new Date());
   const [data, setData] = useState();
   const [loading, setLoading] = useState(false);
@@ -42,7 +56,14 @@ export default function AppointmentUser() {
   ];
 
   const handleValidation = () => {
-    if (name !== "" && address1 !== "" && date !== null && doctor !== null) {
+    if (
+      name !== "" &&
+      address1 !== "" &&
+      city !== "" &&
+      province !== "" &&
+      date !== null &&
+      doctor !== null
+    ) {
       postData();
       setError(false);
     } else {
@@ -63,6 +84,7 @@ export default function AppointmentUser() {
       name: name,
       email: currentUser.email,
       address: `${address1}.` + address2 || "",
+      city: city,
       option: doctor,
       date: appointmentDate,
       role: "USER",
@@ -89,6 +111,40 @@ export default function AppointmentUser() {
     }
     setLoading(false);
   };
+
+  const indonesiaCities = indonesia.getAll();
+
+  const findCity = (prov) => {
+    const newCities = [];
+    if (prov !== "") {
+      for (let i = 0; i < indonesiaCities.length; i++) {
+        const elm = indonesiaCities[i];
+        if (elm.province === prov) {
+          newCities.push(elm.name);
+        }
+      }
+      setRegencies([...new Set(newCities)]);
+    }
+  };
+
+  const handleChange = (e) => {
+    const target = e.target.value;
+  };
+
+  useEffect(() => {
+    const provincesFunc = () => {
+      const provinces = [];
+      const cities = [];
+      for (let i = 0; i < indonesiaCities.length; i++) {
+        const element = indonesiaCities[i];
+        provinces.push(element.province);
+        cities.push(element.name);
+      }
+      setCities([...new Set(cities)]);
+      setProvinces([...new Set(provinces)].sort());
+    };
+    provincesFunc();
+  }, [indonesiaCities]);
 
   return (
     <Box
@@ -157,8 +213,55 @@ export default function AppointmentUser() {
             />
             <br />
             <TextField
+              id="provinces"
+              label="Provinces"
+              select
+              className="appointment-item"
+              required
+              value={province}
+              onChange={(e) => {
+                setProvince(e.target.value);
+                findCity(e.target.value);
+                setCity("");
+              }}
+              variant="outlined"
+            >
+              {provinces.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </TextField>
+            <br />
+            <TextField
+              id="cities"
+              label="Cities"
+              select
+              className="appointment-item"
+              required
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              variant="outlined"
+            >
+              {regencies.length !== 0
+                ? regencies.map((option) => (
+                    <MenuItem key={option} value={option}>
+                      {option}
+                    </MenuItem>
+                  ))
+                : cities.map((option) => {
+                    const name = option.replace(/Administrasi/g, "");
+                    return (
+                      <MenuItem key={name} value={name}>
+                        {name}
+                      </MenuItem>
+                    );
+                  })}
+            </TextField>
+            <br />
+            <TextField
               id="outlined-select-basic"
-              label="Select"
+              label="Doctors"
               select
               className="appointment-item"
               required
