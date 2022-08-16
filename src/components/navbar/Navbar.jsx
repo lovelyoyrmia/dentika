@@ -17,6 +17,10 @@ import AdbIcon from "@mui/icons-material/Adb";
 import React, { useState } from "react";
 import { AppBar } from "../topbar/TopbarComponents";
 import { useAuth } from "../../services/FirebaseAuthContext";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import LogoutIcon from "@mui/icons-material/Logout";
+import HomeIcon from "@mui/icons-material/Home";
 
 export default function Navbar() {
   const { currentUser, signOut } = useAuth();
@@ -39,11 +43,11 @@ export default function Navbar() {
   };
 
   const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
+    setAnchorElNav();
   };
 
   const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
+    setAnchorElUser();
   };
 
   const pages = ["Products", "Pricing", "Blog"];
@@ -55,9 +59,9 @@ export default function Navbar() {
   // ];
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" elevation={0}>
       <Container maxWidth="xl">
-        <Toolbar disableGutters>
+        <Toolbar>
           {/* <Typography
             onClick={handleLogout}
             variant="h6"
@@ -161,17 +165,42 @@ export default function Navbar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
+              <MenuItem key={0} onClick={handleCloseUserMenu}>
+                <Link
+                  to={ROUTES.HOME}
+                  className="link"
+                  style={{ display: "flex" }}
+                >
+                  <HomeIcon sx={{ fontSize: 22, mr: 1 }} />
+                  <Typography textAlign="center">Home</Typography>
+                </Link>
+              </MenuItem>
               <MenuItem key={1} onClick={handleCloseUserMenu}>
-                <Link to={ROUTES.PROFILE} className="link">
+                <Link
+                  to={ROUTES.PROFILE}
+                  className="link"
+                  style={{ display: "flex" }}
+                >
+                  <PersonOutlineIcon sx={{ fontSize: 22, mr: 1 }} />
                   <Typography textAlign="center">Profile</Typography>
                 </Link>
               </MenuItem>
               <MenuItem key={2} onClick={handleCloseUserMenu}>
-                <Link to={ROUTES.DASHBOARD} className="link">
+                <Link
+                  to={ROUTES.DASHBOARD}
+                  className="link"
+                  style={{ display: "flex" }}
+                >
+                  <DashboardIcon sx={{ fontSize: 22, mr: 1 }} />
                   <Typography textAlign="center">Dashboard</Typography>
                 </Link>
               </MenuItem>
-              <MenuItem key={3} onClick={handleLogout}>
+              <MenuItem
+                key={3}
+                onClick={handleLogout}
+                style={{ display: "flex" }}
+              >
+                <LogoutIcon sx={{ fontSize: 22, mr: 1 }} />
                 <Typography textAlign="center">Logout</Typography>
               </MenuItem>
             </Menu>

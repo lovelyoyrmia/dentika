@@ -22,20 +22,12 @@ import indonesia from "indonesia-cities-regencies";
 
 export default function AppointmentUser() {
   const { currentUser } = useAuth("");
-  const [state, setState] = useState({
-    name: "",
-    address1: "",
-    address2: "",
-    city: "",
-    doctor: "",
-    date: new Date(),
-  });
   const [name, setName] = useState("");
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
-  const [doctor, setDoctor] = useState("Dokter Umum");
-  const [city, setCity] = useState("");
   const [province, setProvince] = useState("");
+  const [city, setCity] = useState("");
+  const [doctor, setDoctor] = useState("");
   const [cities, setCities] = useState([]);
   const [regencies, setRegencies] = useState([]);
   const [provinces, setProvinces] = useState([]);
@@ -75,36 +67,54 @@ export default function AppointmentUser() {
     setName("");
     setAddress1("");
     setAddress2("");
+    setProvince("");
+    setCity("");
+    setDoctor("");
   };
 
   const postData = async () => {
-    let appointmentDate = moment(date).format("YYYY-MM-DD HH:mm:ss");
-    const data = {
-      uid: currentUser.uid,
-      name: name,
-      email: currentUser.email,
-      address: `${address1}.` + address2 || "",
-      city: city,
-      option: doctor,
-      date: appointmentDate,
-      role: "USER",
-    };
     try {
       setLoading(true);
-      const token = handleAccessToken(currentUser);
-      const res = await axios.post("http://localhost:5000/api/addData", data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (res.data["message"] === "Success") {
-        console.log(res.data);
-        setData(res.data);
-        setDefault();
-        toast.success("Appointment sent !", {
+      const now = moment().format("YYYY-MM-DD HH:mm:ss");
+      const appointmentDate = moment(date).format("YYYY-MM-DD HH:mm:ss");
+      const isAfter = moment(now).isAfter(appointmentDate);
+
+      if (isAfter) {
+        toast.error("Appointment date should be after the current date", {
           position: "top-right",
           autoClose: 5000,
         });
+      } else {
+        const data = {
+          uid: currentUser.uid,
+          name: name,
+          email: currentUser.email,
+          address: `${address1}.` + address2 || "",
+          province: province,
+          city: city,
+          option: doctor,
+          date: appointmentDate,
+          role: "USER",
+        };
+        const token = handleAccessToken(currentUser);
+        const res = await axios.post(
+          "http://localhost:5000/api/addData",
+          data,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (res.data["message"] === "Success") {
+          console.log(res.data);
+          setData(res.data);
+          setDefault();
+          toast.success("Appointment sent !", {
+            position: "top-right",
+            autoClose: 5000,
+          });
+        }
       }
     } catch (error) {
       alert(error.message);
@@ -125,10 +135,6 @@ export default function AppointmentUser() {
       }
       setRegencies([...new Set(newCities)]);
     }
-  };
-
-  const handleChange = (e) => {
-    const target = e.target.value;
   };
 
   useEffect(() => {
@@ -186,7 +192,10 @@ export default function AppointmentUser() {
               className="appointment-item"
               required
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                setError(false);
+              }}
               placeholder="Your Name"
               variant="outlined"
             />
@@ -197,7 +206,10 @@ export default function AppointmentUser() {
               required
               className="appointment-item"
               value={address1}
-              onChange={(e) => setAddress1(e.target.value)}
+              onChange={(e) => {
+                setAddress1(e.target.value);
+                setError(false);
+              }}
               placeholder="Your Address"
               variant="outlined"
             />
@@ -223,6 +235,7 @@ export default function AppointmentUser() {
                 setProvince(e.target.value);
                 findCity(e.target.value);
                 setCity("");
+                setError(false);
               }}
               variant="outlined"
             >
@@ -240,7 +253,10 @@ export default function AppointmentUser() {
               className="appointment-item"
               required
               value={city}
-              onChange={(e) => setCity(e.target.value)}
+              onChange={(e) => {
+                setCity(e.target.value);
+                setError(false);
+              }}
               variant="outlined"
             >
               {regencies.length !== 0
@@ -266,7 +282,10 @@ export default function AppointmentUser() {
               className="appointment-item"
               required
               value={doctor}
-              onChange={(e) => setDoctor(e.target.value)}
+              onChange={(e) => {
+                setDoctor(e.target.value);
+                setError(false);
+              }}
               variant="outlined"
               helperText="Please select the Doctors"
             >
