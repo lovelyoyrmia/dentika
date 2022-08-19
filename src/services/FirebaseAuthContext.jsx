@@ -35,7 +35,7 @@ export function AuthProvider({ children }) {
     return new Authentication().resetPassword(email);
   };
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onIdTokenChanged((user) => {
       setCurrentUser(user);
       setLoading(false);
     });

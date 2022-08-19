@@ -21,9 +21,9 @@
   margin: 10px 0;
 }
 
-.center {
-  text-align: center;
-}
+/* .center {
+  text-align: start;
+} */
 
 .appointment form .appointment-item {
   margin-bottom: 20px;

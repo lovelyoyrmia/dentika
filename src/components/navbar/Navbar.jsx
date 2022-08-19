@@ -6,14 +6,12 @@ import {
   MenuItem,
   Toolbar,
   Typography,
-  Tooltip,
   Button,
   Avatar,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { ROUTES } from "../../constant/routes";
 import { Link, useNavigate } from "react-router-dom";
-import AdbIcon from "@mui/icons-material/Adb";
 import React, { useState } from "react";
 import { AppBar } from "../topbar/TopbarComponents";
 import { useAuth } from "../../services/FirebaseAuthContext";
@@ -21,6 +19,8 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import LogoutIcon from "@mui/icons-material/Logout";
 import HomeIcon from "@mui/icons-material/Home";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import Logo from "../../images/logo.jpg";
 
 export default function Navbar() {
   const { currentUser, signOut } = useAuth();
@@ -59,19 +59,14 @@ export default function Navbar() {
   // ];
 
   return (
-    <AppBar position="static" elevation={0}>
+    <AppBar position="static" elevation={0} sx={{ py: 2 }}>
       <Container maxWidth="xl">
-        <Toolbar>
-          {/* <Typography
-            onClick={handleLogout}
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{ display: { xs: "none", sm: "block" } }}
+        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Box
+            sx={{
+              display: { sm: "flex", md: "none" },
+            }}
           >
-            {currentUser.email}
-          </Typography> */}
-          <Box sx={{ flexGrow: 1, display: { sm: "flex", md: "none" } }}>
             <IconButton
               size="large"
               aria-label="account of current user"
@@ -107,29 +102,20 @@ export default function Navbar() {
               ))}
             </Menu>
           </Box>
-          <AdbIcon sx={{ display: { sm: "flex", md: "none" }, mr: 1 }} />
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href=""
-            sx={{
-              mr: 2,
-              display: { sm: "flex", md: "none" },
-              flexGrow: 1,
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
-            }}
-          >
-            LOGO
-          </Typography>
+
+          <img
+            src={Logo}
+            alt=""
+            width={100}
+            onClick={() => navigate(ROUTES.HOME)}
+          />
+
           <Box
             sx={{
-              flexGrow: 1,
-              display: { xs: "none", md: "flex" },
+              display: {
+                xs: "none",
+                md: "flex",
+              },
             }}
           >
             {pages.map((page) => (
@@ -143,12 +129,25 @@ export default function Navbar() {
             ))}
           </Box>
 
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Photo" src={currentUser.photoURL || ""} />
-              </IconButton>
-            </Tooltip>
+          <Box>
+            <Button
+              onClick={handleOpenUserMenu}
+              sx={{ p: { xs: 0.3, md: 1 }, color: "black" }}
+            >
+              <Typography
+                sx={{
+                  mr: 2,
+                  fontSize: "14px",
+                  display: { xs: "none", md: "block" },
+                }}
+              >
+                Hi, {currentUser.displayName || currentUser.email.split("@")[0]}
+              </Typography>
+              <Avatar alt="Photo" src={currentUser.photoURL || ""} />
+              <ArrowDropDownIcon
+                sx={{ display: { xs: "block", md: "none" }, ml: 1 }}
+              />
+            </Button>
             <Menu
               sx={{ mt: "45px" }}
               id="menu-appbar"
@@ -165,6 +164,18 @@ export default function Navbar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
+              <Typography
+                sx={{
+                  my: 1,
+                  mx: 2,
+                  fontSize: "14px",
+                  display: { xs: "block", md: "none" },
+                }}
+              >
+                Hi,{" "}
+                {currentUser.displayName.split(" ")[0] ||
+                  currentUser.email.split("@")[0]}
+              </Typography>
               <MenuItem key={0} onClick={handleCloseUserMenu}>
                 <Link
                   to={ROUTES.HOME}

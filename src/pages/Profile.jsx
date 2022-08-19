@@ -1,28 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../services/FirebaseAuthContext";
-import axios from "axios";
 import { handleAccessToken } from "../utils/utils";
 import { CircularProgress, Alert } from "@mui/material";
+import { setAuthToken, userAxios } from "../services/axios";
+import { ROLE } from "../constant/role";
 
 export default function Profile() {
-  const { signOut, currentUser } = useAuth();
+  const { currentUser } = useAuth();
   const [data, setData] = useState([]);
   const token = handleAccessToken(currentUser);
 
   const deleteData = async (role, id, email) => {
     try {
-      const res = await axios.post(
-        `http://localhost:5000/api/deleteId/${id}`,
-        {
-          role: role,
-          email: email,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      setAuthToken(userAxios, token);
+      const res = await userAxios.post(`/deleteId/${id}`, {
+        role: role,
+        email: email,
+      });
       if (res.data["message"] === "Success") {
         window.location.reload(false);
       }
@@ -33,17 +27,9 @@ export default function Profile() {
 
   useEffect(() => {
     const getDataEmail = async () => {
-      const req = { role: "USER", email: currentUser.email };
-
-      const res = await axios.post(
-        "http://localhost:5000/api/getDataByEmail",
-        req,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const req = { role: ROLE.PATIENT, email: currentUser.email };
+      setAuthToken(userAxios, token);
+      const res = await userAxios.post("/getDataByEmail", req);
       setData(res.data["data"]);
     };
     getDataEmail();
@@ -55,7 +41,7 @@ export default function Profile() {
           <div
             key={appoint.docId}
             onClick={() => {
-              deleteData("USER", appoint.docId, appoint.email);
+              deleteData(ROLE.PATIENT, appoint.docId, appoint.email);
             }}
           >
             {appoint.name}
