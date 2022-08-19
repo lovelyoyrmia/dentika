@@ -4,6 +4,7 @@ import {
   Button,
   CircularProgress,
   Box,
+  Alert,
   Grid,
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
@@ -11,11 +12,13 @@ import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import SendIcon from "@mui/icons-material/Send";
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./appointment.css";
 import { useAuth } from "../../services/FirebaseAuthContext";
 import moment from "moment";
 import { toast, ToastContainer } from "react-toastify";
+import { handleAccessToken } from "../../utils/utils";
+import indonesia from "indonesia-cities-regencies";
 
 export default function Appointment() {
   const { currentUser } = useAuth("");
@@ -23,7 +26,13 @@ export default function Appointment() {
   const [email, setEmail] = useState("");
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
-  const [doctor, setDoctor] = useState("Dokter Umum");
+  const [province, setProvince] = useState("");
+  const [city, setCity] = useState("");
+  const [doctor, setDoctor] = useState("");
+  const [symptoms, setSymptoms] = useState("");
+  const [cities, setCities] = useState([]);
+  const [regencies, setRegencies] = useState([]);
+  const [provinces, setProvinces] = useState([]);
   const [date, setDate] = useState(new Date());
   const [data, setData] = useState();
   const [loading, setLoading] = useState(false);
@@ -45,6 +54,8 @@ export default function Appointment() {
       name !== "" &&
       email !== "" &&
       address1 !== "" &&
+      city !== "" &&
+      province !== "" &&
       date !== null &&
       doctor !== null
     ) {
@@ -60,40 +71,91 @@ export default function Appointment() {
     setEmail("");
     setAddress1("");
     setAddress2("");
+    setProvince("");
+    setCity("");
+    setDoctor("");
+    setSymptoms("");
   };
 
   const postData = async () => {
-    let appointmentDate = moment(date).format("YYYY-MM-DD HH:mm:ss");
-    const data = {
-      uid: currentUser.uid,
-      name: name,
-      email: email,
-      address: `${address1}.` + address2 || "",
-      option: doctor,
-      date: appointmentDate,
-      role: "USER",
-    };
     try {
       setLoading(true);
-      const res = await axios.post("http://localhost:5000/api/addData", data, {
-        headers: {
-          Authorization: `Bearer ${currentUser.accessToken}`,
-        },
-      });
-      if (res.data["message"] === "Success") {
-        console.log(res.data);
-        setData(res.data);
-        setDefault();
-        toast.success("Appointment sent !", {
+      const now = moment().format("YYYY-MM-DD HH:mm:ss");
+      const appointmentDate = moment(date).format("YYYY-MM-DD HH:mm:ss");
+      const isAfter = moment(now).isAfter(appointmentDate);
+
+      if (isAfter) {
+        toast.error("Appointment date should be after the current date", {
           position: "top-right",
           autoClose: 5000,
         });
+      } else {
+        const data = {
+          uid: currentUser.uid,
+          name: name,
+          email: currentUser.email,
+          address: `${address1}.` + address2 || "",
+          province: province,
+          city: city,
+          option: doctor,
+          date: appointmentDate,
+          role: "USER",
+        };
+        const token = handleAccessToken(currentUser);
+        const res = await axios.post(
+          "http://localhost:5000/api/addData",
+          data,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (res.data["message"] === "Success") {
+          console.log(res.data);
+          setData(res.data);
+          setDefault();
+          toast.success("Appointment sent !", {
+            position: "top-right",
+            autoClose: 5000,
+          });
+        }
       }
     } catch (error) {
-      alert(error);
+      alert(error.message);
     }
     setLoading(false);
   };
+
+  const indonesiaCities = indonesia.getAll();
+
+  const findCity = (prov) => {
+    const newCities = [];
+    if (prov !== "") {
+      for (let i = 0; i < indonesiaCities.length; i++) {
+        const elm = indonesiaCities[i];
+        if (elm.province === prov) {
+          newCities.push(elm.name);
+        }
+      }
+      setRegencies([...new Set(newCities)]);
+    }
+  };
+
+  useEffect(() => {
+    const provincesFunc = () => {
+      const provinces = [];
+      const cities = [];
+      for (let i = 0; i < indonesiaCities.length; i++) {
+        const element = indonesiaCities[i];
+        provinces.push(element.province);
+        cities.push(element.name);
+      }
+      setCities([...new Set(cities)]);
+      setProvinces([...new Set(provinces)].sort());
+    };
+    provincesFunc();
+  }, [indonesiaCities]);
 
   return (
     <Box
@@ -121,7 +183,11 @@ export default function Appointment() {
             alignItems="strech"
           >
             {error ? (
-              <div className="required">* Indicates a required field</div>
+              <div>
+                <Alert severity="error" sx={{ my: 2 }}>
+                  Indicates a required field
+                </Alert>
+              </div>
             ) : (
               <br />
             )}
@@ -131,7 +197,10 @@ export default function Appointment() {
               className="appointment-item"
               required
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                setError(false);
+              }}
               placeholder="Your Name"
               variant="outlined"
             />
@@ -139,10 +208,13 @@ export default function Appointment() {
             <TextField
               id="email"
               label="Email"
-              required
               className="appointment-item"
+              required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setError(false);
+              }}
               placeholder="Your Email"
               variant="outlined"
             />
@@ -153,7 +225,10 @@ export default function Appointment() {
               required
               className="appointment-item"
               value={address1}
-              onChange={(e) => setAddress1(e.target.value)}
+              onChange={(e) => {
+                setAddress1(e.target.value);
+                setError(false);
+              }}
               placeholder="Your Address"
               variant="outlined"
             />
@@ -169,13 +244,67 @@ export default function Appointment() {
             />
             <br />
             <TextField
+              id="provinces"
+              label="Provinces"
+              select
+              className="appointment-item"
+              required
+              value={province}
+              onChange={(e) => {
+                setProvince(e.target.value);
+                findCity(e.target.value);
+                setCity("");
+                setError(false);
+              }}
+              variant="outlined"
+            >
+              {provinces.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </TextField>
+            <br />
+            <TextField
+              id="cities"
+              label="Cities"
+              select
+              className="appointment-item"
+              required
+              value={city}
+              onChange={(e) => {
+                setCity(e.target.value);
+                setError(false);
+              }}
+              variant="outlined"
+            >
+              {regencies.length !== 0
+                ? regencies.map((option) => (
+                    <MenuItem key={option} value={option}>
+                      {option}
+                    </MenuItem>
+                  ))
+                : cities.map((option) => {
+                    const name = option.replace(/Administrasi/g, "");
+                    return (
+                      <MenuItem key={name} value={name}>
+                        {name}
+                      </MenuItem>
+                    );
+                  })}
+            </TextField>
+            <br />
+            <TextField
               id="outlined-select-basic"
-              label="Select"
+              label="Doctors"
               select
               className="appointment-item"
               required
               value={doctor}
-              onChange={(e) => setDoctor(e.target.value)}
+              onChange={(e) => {
+                setDoctor(e.target.value);
+                setError(false);
+              }}
               variant="outlined"
               helperText="Please select the Doctors"
             >
@@ -185,6 +314,16 @@ export default function Appointment() {
                 </MenuItem>
               ))}
             </TextField>
+            <br />
+            <TextField
+              id="symptoms"
+              label="Symptoms"
+              className="appointment-item"
+              value={symptoms}
+              onChange={(e) => setSymptoms(e.target.value)}
+              placeholder="Your Symptoms"
+              variant="outlined"
+            />
             <br />
             <DateTimePicker
               renderInput={(props) => <TextField {...props} />}
