@@ -1,14 +1,14 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { ROUTES } from "../constant/routes";
 import { useAuth } from "./FirebaseAuthContext";
 
-export default function ProtectedRoute({ children }) {
+export default function ProtectedRoute() {
   const { currentUser } = useAuth();
 
   return currentUser != null ? (
     currentUser.emailVerified ? (
-      children
+      <Outlet />
     ) : (
       <Navigate to={ROUTES.EMAILVERIF} />
     )

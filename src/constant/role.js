@@ -1,5 +1,18 @@
 export const ROLE = {
-  PATIENT: "PATIENT",
-  DOCTOR: "DOCTOR",
-  ADMIN: "ADMIN",
+  user: "USER123",
+  admin: "ADMIN1294",
+  patient: "PATIENT3012",
+  doctor: "DOCTOR4011",
+};
+
+const DATA = {
+  booking: "BOOKING",
+  patient: "PATIENT",
+  doctor: "DOCTOR",
+  admin: "ADMIN",
+};
+
+const DOCTOR = {
+  umum: "UMUM",
+  gigi: "GIGI",
 };

@@ -9,9 +9,12 @@ import { ROUTES } from "./constant/routes";
 import { CircularProgress } from "@mui/material";
 import VerifEmail from "./services/VerifEmail";
 import LandingPage from "./pages/LandingPage";
-import Profile from "./pages/Profile";
+import Profile from "./pages/ProfileWrapper";
+import { io } from "socket.io-client";
 import ForgotPassword from "./pages/ForgotPassword";
 import NavbarWrapper from "./components/navbar/NavbarWrapper";
+
+// const io = new Server
 
 function App() {
   return (
@@ -19,16 +22,14 @@ function App() {
       <AuthProvider>
         <NavbarWrapper />
         <Routes>
+          {/* PUBLIC ROUTE */}
           <Route exact path={ROUTES.HOME} element={<LandingPage />} />
-          <Route exact path={ROUTES.LOGIN} element={<LoginPage />} />
-          <Route
-            path={ROUTES.DASHBOARD}
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
-          />
+          <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+
+          {/* AUTHENTICATION PROTECTED ROUTE */}
+          <Route element={<ProtectedRoute />}>
+            <Route path={ROUTES.DASHBOARD} element={<Home />} />
+          </Route>
           <Route
             path={ROUTES.EMAILVERIF}
             element={
@@ -51,15 +52,12 @@ function App() {
               </VerifEmail>
             }
           />
-          <Route
-            path={ROUTES.PROFILE}
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
+          <Route element={<ProtectedRoute />}>
+            <Route path={ROUTES.PROFILE} element={<Profile />} />
+          </Route>
           <Route path={ROUTES.RESET_PASSWORD} element={<ForgotPassword />} />
+
+          {/* MISSING PAGE */}
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </AuthProvider>

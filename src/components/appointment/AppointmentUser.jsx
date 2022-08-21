@@ -17,22 +17,16 @@ import { useAuth } from "../../services/FirebaseAuthContext";
 import moment from "moment";
 import { toast, ToastContainer } from "react-toastify";
 import { handleAccessToken } from "../../utils/utils";
-import indonesia from "indonesia-cities-regencies";
-import { setAuthToken, userAxios } from "../../services/axios";
+import { setAuthToken, appointAxios } from "../../services/axios";
 import { ROLE } from "../../constant/role";
 
 export default function AppointmentUser() {
   const { currentUser } = useAuth("");
-  const [name, setName] = useState("");
-  const [address1, setAddress1] = useState("");
-  const [address2, setAddress2] = useState("");
-  const [province, setProvince] = useState("");
-  const [city, setCity] = useState("");
-  const [doctor, setDoctor] = useState("");
-  const [symptoms, setSymptoms] = useState("");
-  const [cities, setCities] = useState([]);
-  const [regencies, setRegencies] = useState([]);
-  const [provinces, setProvinces] = useState([]);
+  const [state, setState] = useState({
+    name: "",
+    doctor: "",
+    symptoms: "",
+  });
   const [date, setDate] = useState(new Date());
   const [data, setData] = useState();
   const [loading, setLoading] = useState(false);
@@ -49,14 +43,16 @@ export default function AppointmentUser() {
     },
   ];
 
+  const handleChange = (prop) => (event) => {
+    setState({ ...state, [prop]: event.target.value });
+  };
+
   const handleValidation = () => {
     if (
-      name !== "" &&
-      address1 !== "" &&
-      city !== "" &&
-      province !== "" &&
+      state.name !== "" &&
+      state.symptoms !== "" &&
       date !== null &&
-      doctor !== null
+      state.doctor !== null
     ) {
       postData();
       setError(false);
@@ -66,12 +62,11 @@ export default function AppointmentUser() {
   };
 
   const setDefault = () => {
-    setName("");
-    setAddress1("");
-    setAddress2("");
-    setProvince("");
-    setCity("");
-    setDoctor("");
+    setState({
+      name: "",
+      doctor: "",
+      symptoms: "",
+    });
   };
 
   const postData = async () => {
@@ -89,18 +84,18 @@ export default function AppointmentUser() {
       } else {
         const data = {
           uid: currentUser.uid,
-          name: name,
+          name: state.name,
           email: currentUser.email,
-          address: `${address1}.` + address2 || "",
-          province: province,
-          city: city,
-          option: doctor,
+          symptoms: state.symptoms,
+          option: state.doctor,
           date: appointmentDate,
-          role: ROLE.PATIENT,
+          role: {
+            PATIENT: ROLE.patient,
+          },
         };
         const token = handleAccessToken(currentUser);
-        setAuthToken(userAxios, token);
-        const res = await userAxios.post("/addData", data);
+        setAuthToken(appointAxios, token);
+        const res = await appointAxios.post("/addData", data);
         if (res.data["message"] === "Success") {
           console.log(res.data);
           setData(res.data);
@@ -117,36 +112,6 @@ export default function AppointmentUser() {
     setLoading(false);
   };
 
-  const indonesiaCities = indonesia.getAll();
-
-  const findCity = (prov) => {
-    const newCities = [];
-    if (prov !== "") {
-      for (let i = 0; i < indonesiaCities.length; i++) {
-        const elm = indonesiaCities[i];
-        if (elm.province === prov) {
-          newCities.push(elm.name);
-        }
-      }
-      setRegencies([...new Set(newCities)]);
-    }
-  };
-
-  useEffect(() => {
-    const provincesFunc = () => {
-      const provinces = [];
-      const cities = [];
-      for (let i = 0; i < indonesiaCities.length; i++) {
-        const element = indonesiaCities[i];
-        provinces.push(element.province);
-        cities.push(element.name);
-      }
-      setCities([...new Set(cities)]);
-      setProvinces([...new Set(provinces)].sort());
-    };
-    provincesFunc();
-  }, [indonesiaCities]);
-
   return (
     <Box
       sx={{
@@ -154,9 +119,7 @@ export default function AppointmentUser() {
         p: 3,
         margin: 2,
         borderRadius: 2,
-        width: {
-          md: 1 / 1.5,
-        },
+        width: 1 / 2,
         flexGrow: 1,
       }}
     >
@@ -174,12 +137,12 @@ export default function AppointmentUser() {
           )}
           <Grid
             container
-            spacing={{ md: 3, xs: 2 }}
-            columns={{ xs: 4, sm: 8, md: 12 }}
+            spacing={{ md: 2, xs: 1 }}
+            columns={{ xs: 2, sm: 4, md: 6 }}
           >
             {/* ======================================== */}
 
-            <Grid item xs={2} sm={4} md={4}>
+            <Grid item xs={2} sm={4} md>
               <Grid
                 container
                 direction="column"
@@ -191,36 +154,20 @@ export default function AppointmentUser() {
                   label="Name"
                   className="appointment-item"
                   required
-                  value={name}
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    setError(false);
-                  }}
+                  value={state.name}
+                  onChange={handleChange("name")}
                   placeholder="Your Name"
                   variant="outlined"
                 />
                 <br />
                 <TextField
-                  id="address1"
-                  label="Address 1"
+                  id="symptoms"
+                  label="Symptoms"
+                  className="appointment-item"
                   required
-                  className="appointment-item"
-                  value={address1}
-                  onChange={(e) => {
-                    setAddress1(e.target.value);
-                    setError(false);
-                  }}
-                  placeholder="Your Address"
-                  variant="outlined"
-                />
-                <br />
-                <TextField
-                  id="address2"
-                  label="Address 2"
-                  className="appointment-item"
-                  value={address2}
-                  onChange={(e) => setAddress2(e.target.value)}
-                  placeholder="Your Address"
+                  value={state.symptoms}
+                  onChange={handleChange("symptoms")}
+                  placeholder="Your Symptoms"
                   variant="outlined"
                 />
               </Grid>
@@ -228,7 +175,7 @@ export default function AppointmentUser() {
 
             {/* ======================================== */}
 
-            <Grid item xs={2} sm={4} md={4}>
+            <Grid item xs={2} sm={4} md>
               <Grid
                 container
                 direction="column"
@@ -236,67 +183,13 @@ export default function AppointmentUser() {
                 alignItems="strech"
               >
                 <TextField
-                  id="provinces"
-                  label="Provinces"
-                  select
-                  className="appointment-item"
-                  required
-                  value={province}
-                  onChange={(e) => {
-                    setProvince(e.target.value);
-                    findCity(e.target.value);
-                    setCity("");
-                    setError(false);
-                  }}
-                  variant="outlined"
-                >
-                  {provinces.map((option) => (
-                    <MenuItem key={option} value={option}>
-                      {option}
-                    </MenuItem>
-                  ))}
-                </TextField>
-                <br />
-                <TextField
-                  id="cities"
-                  label="Cities"
-                  select
-                  className="appointment-item"
-                  required
-                  value={city}
-                  onChange={(e) => {
-                    setCity(e.target.value);
-                    setError(false);
-                  }}
-                  variant="outlined"
-                >
-                  {regencies.length !== 0
-                    ? regencies.map((option) => (
-                        <MenuItem key={option} value={option}>
-                          {option}
-                        </MenuItem>
-                      ))
-                    : cities.map((option) => {
-                        const name = option.replace(/Administrasi/g, "");
-                        return (
-                          <MenuItem key={name} value={name}>
-                            {name}
-                          </MenuItem>
-                        );
-                      })}
-                </TextField>
-                <br />
-                <TextField
                   id="outlined-select-basic"
                   label="Doctors"
                   select
                   className="appointment-item"
                   required
-                  value={doctor}
-                  onChange={(e) => {
-                    setDoctor(e.target.value);
-                    setError(false);
-                  }}
+                  value={state.doctor}
+                  onChange={handleChange("doctor")}
                   variant="outlined"
                   // helperText="Please select the Doctors"
                 >
@@ -306,27 +199,6 @@ export default function AppointmentUser() {
                     </MenuItem>
                   ))}
                 </TextField>
-              </Grid>
-            </Grid>
-
-            {/* ======================================== */}
-
-            <Grid item xs={2} sm={4} md={4}>
-              <Grid
-                container
-                direction="column"
-                justifyContent="center"
-                alignItems="strech"
-              >
-                <TextField
-                  id="symptoms"
-                  label="Symptoms"
-                  className="appointment-item"
-                  value={symptoms}
-                  onChange={(e) => setSymptoms(e.target.value)}
-                  placeholder="Your Symptoms"
-                  variant="outlined"
-                />
                 <br />
                 <DateTimePicker
                   renderInput={(props) => <TextField {...props} />}

@@ -21,7 +21,7 @@ import { handleAccessToken } from "../../utils/utils";
 import indonesia from "indonesia-cities-regencies";
 
 export default function Appointment() {
-  const { currentUser } = useAuth("");
+  const { currentUser } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [address1, setAddress1] = useState("");
@@ -91,9 +91,9 @@ export default function Appointment() {
         });
       } else {
         const data = {
-          uid: currentUser.uid,
+          uid: Math.random().toString(36).slice(2, 12),
           name: name,
-          email: currentUser.email,
+          email: email,
           address: `${address1}.` + address2 || "",
           province: province,
           city: city,
@@ -143,214 +143,220 @@ export default function Appointment() {
   };
 
   useEffect(() => {
-    const provincesFunc = () => {
-      const provinces = [];
-      const cities = [];
-      for (let i = 0; i < indonesiaCities.length; i++) {
-        const element = indonesiaCities[i];
-        provinces.push(element.province);
-        cities.push(element.name);
-      }
-      setCities([...new Set(cities)]);
-      setProvinces([...new Set(provinces)].sort());
-    };
-    provincesFunc();
-  }, [indonesiaCities]);
+    if (currentUser) {
+      const provincesFunc = () => {
+        const provinces = [];
+        const cities = [];
+        for (let i = 0; i < indonesiaCities.length; i++) {
+          const element = indonesiaCities[i];
+          provinces.push(element.province);
+          cities.push(element.name);
+        }
+        setCities([...new Set(cities)]);
+        setProvinces([...new Set(provinces)].sort());
+      };
+      provincesFunc();
+    }
+  }, [indonesiaCities, currentUser]);
 
-  return (
-    <Box
-      sx={{
-        border: 1,
-        p: 3,
-        margin: 2,
-        borderRadius: 2,
-        width: {
-          xs: 1 / 1.5, // theme.breakpoints.up('xs')
-          sm: 1 / 2, // theme.breakpoints.up('sm')
-          md: 1 / 3, // theme.breakpoints.up('md')
-          lg: 1 / 3, // theme.breakpoints.up('lg')
-          xl: 1 / 3, // theme.breakpoints.up('xl')
-        },
-      }}
-    >
-      <div className="appointment-title">Appointment</div>
-      <form>
-        <LocalizationProvider dateAdapter={AdapterMoment}>
-          <Grid
-            container
-            direction="column"
-            justifyContent="center"
-            alignItems="strech"
-          >
-            {error ? (
-              <div>
-                <Alert severity="error" sx={{ my: 2 }}>
-                  Indicates a required field
-                </Alert>
-              </div>
-            ) : (
+  if (currentUser) {
+    return (
+      <Box
+        sx={{
+          border: 1,
+          p: 3,
+          margin: 2,
+          borderRadius: 2,
+          width: {
+            xs: 1 / 1.5, // theme.breakpoints.up('xs')
+            sm: 1 / 2, // theme.breakpoints.up('sm')
+            md: 1 / 3, // theme.breakpoints.up('md')
+            lg: 1 / 3, // theme.breakpoints.up('lg')
+            xl: 1 / 3, // theme.breakpoints.up('xl')
+          },
+        }}
+      >
+        <div className="appointment-title">Appointment</div>
+        <form>
+          <LocalizationProvider dateAdapter={AdapterMoment}>
+            <Grid
+              container
+              direction="column"
+              justifyContent="center"
+              alignItems="strech"
+            >
+              {error ? (
+                <div>
+                  <Alert severity="error" sx={{ my: 2 }}>
+                    Indicates a required field
+                  </Alert>
+                </div>
+              ) : (
+                <br />
+              )}
+              <TextField
+                id="name"
+                label="Name"
+                className="appointment-item"
+                required
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setError(false);
+                }}
+                placeholder="Your Name"
+                variant="outlined"
+              />
               <br />
-            )}
-            <TextField
-              id="name"
-              label="Name"
-              className="appointment-item"
-              required
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                setError(false);
-              }}
-              placeholder="Your Name"
-              variant="outlined"
-            />
-            <br />
-            <TextField
-              id="email"
-              label="Email"
-              className="appointment-item"
-              required
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setError(false);
-              }}
-              placeholder="Your Email"
-              variant="outlined"
-            />
-            <br />
-            <TextField
-              id="address1"
-              label="Address 1"
-              required
-              className="appointment-item"
-              value={address1}
-              onChange={(e) => {
-                setAddress1(e.target.value);
-                setError(false);
-              }}
-              placeholder="Your Address"
-              variant="outlined"
-            />
-            <br />
-            <TextField
-              id="address2"
-              label="Address 2"
-              className="appointment-item"
-              value={address2}
-              onChange={(e) => setAddress2(e.target.value)}
-              placeholder="Your Address"
-              variant="outlined"
-            />
-            <br />
-            <TextField
-              id="provinces"
-              label="Provinces"
-              select
-              className="appointment-item"
-              required
-              value={province}
-              onChange={(e) => {
-                setProvince(e.target.value);
-                findCity(e.target.value);
-                setCity("");
-                setError(false);
-              }}
-              variant="outlined"
-            >
-              {provinces.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-            <br />
-            <TextField
-              id="cities"
-              label="Cities"
-              select
-              className="appointment-item"
-              required
-              value={city}
-              onChange={(e) => {
-                setCity(e.target.value);
-                setError(false);
-              }}
-              variant="outlined"
-            >
-              {regencies.length !== 0
-                ? regencies.map((option) => (
-                    <MenuItem key={option} value={option}>
-                      {option}
-                    </MenuItem>
-                  ))
-                : cities.map((option) => {
-                    const name = option.replace(/Administrasi/g, "");
-                    return (
-                      <MenuItem key={name} value={name}>
-                        {name}
-                      </MenuItem>
-                    );
-                  })}
-            </TextField>
-            <br />
-            <TextField
-              id="outlined-select-basic"
-              label="Doctors"
-              select
-              className="appointment-item"
-              required
-              value={doctor}
-              onChange={(e) => {
-                setDoctor(e.target.value);
-                setError(false);
-              }}
-              variant="outlined"
-              helperText="Please select the Doctors"
-            >
-              {doctors.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.value}
-                </MenuItem>
-              ))}
-            </TextField>
-            <br />
-            <TextField
-              id="symptoms"
-              label="Symptoms"
-              className="appointment-item"
-              value={symptoms}
-              onChange={(e) => setSymptoms(e.target.value)}
-              placeholder="Your Symptoms"
-              variant="outlined"
-            />
-            <br />
-            <DateTimePicker
-              renderInput={(props) => <TextField {...props} />}
-              label="Date"
-              className="appointment-item"
-              value={date}
-              onChange={(value) => setDate(value)}
-            />
-            <br />
-            {loading ? (
-              <div className="center">
-                <CircularProgress />
-              </div>
-            ) : (
-              <Button
-                variant="contained"
-                endIcon={<SendIcon />}
-                size="large"
-                onClick={handleValidation}
+              <TextField
+                id="email"
+                label="Email"
+                className="appointment-item"
+                required
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError(false);
+                }}
+                placeholder="Your Email"
+                variant="outlined"
+              />
+              <br />
+              <TextField
+                id="address1"
+                label="Address 1"
+                required
+                className="appointment-item"
+                value={address1}
+                onChange={(e) => {
+                  setAddress1(e.target.value);
+                  setError(false);
+                }}
+                placeholder="Your Address"
+                variant="outlined"
+              />
+              <br />
+              <TextField
+                id="address2"
+                label="Address 2"
+                className="appointment-item"
+                value={address2}
+                onChange={(e) => setAddress2(e.target.value)}
+                placeholder="Your Address"
+                variant="outlined"
+              />
+              <br />
+              <TextField
+                id="provinces"
+                label="Provinces"
+                select
+                className="appointment-item"
+                required
+                value={province}
+                onChange={(e) => {
+                  setProvince(e.target.value);
+                  findCity(e.target.value);
+                  setCity("");
+                  setError(false);
+                }}
+                variant="outlined"
               >
-                Send
-              </Button>
-            )}
-            <ToastContainer style={{ textAlign: "start" }} />
-          </Grid>
-        </LocalizationProvider>
-      </form>
-    </Box>
-  );
+                {provinces.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <br />
+              <TextField
+                id="cities"
+                label="Cities"
+                select
+                className="appointment-item"
+                required
+                value={city}
+                onChange={(e) => {
+                  setCity(e.target.value);
+                  setError(false);
+                }}
+                variant="outlined"
+              >
+                {regencies.length !== 0
+                  ? regencies.map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))
+                  : cities.map((option) => {
+                      const name = option.replace(/Administrasi/g, "");
+                      return (
+                        <MenuItem key={name} value={name}>
+                          {name}
+                        </MenuItem>
+                      );
+                    })}
+              </TextField>
+              <br />
+              <TextField
+                id="outlined-select-basic"
+                label="Doctors"
+                select
+                className="appointment-item"
+                required
+                value={doctor}
+                onChange={(e) => {
+                  setDoctor(e.target.value);
+                  setError(false);
+                }}
+                variant="outlined"
+                helperText="Please select the Doctors"
+              >
+                {doctors.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.value}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <br />
+              <TextField
+                id="symptoms"
+                label="Symptoms"
+                className="appointment-item"
+                value={symptoms}
+                onChange={(e) => setSymptoms(e.target.value)}
+                placeholder="Your Symptoms"
+                variant="outlined"
+              />
+              <br />
+              <DateTimePicker
+                renderInput={(props) => <TextField {...props} />}
+                label="Date"
+                className="appointment-item"
+                value={date}
+                onChange={(value) => setDate(value)}
+              />
+              <br />
+              {loading ? (
+                <div className="center">
+                  <CircularProgress />
+                </div>
+              ) : (
+                <Button
+                  variant="contained"
+                  endIcon={<SendIcon />}
+                  size="large"
+                  onClick={handleValidation}
+                >
+                  Send
+                </Button>
+              )}
+              <ToastContainer style={{ textAlign: "start" }} />
+            </Grid>
+          </LocalizationProvider>
+        </form>
+      </Box>
+    );
+  } else {
+    return null;
+  }
 }
