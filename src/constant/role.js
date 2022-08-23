@@ -5,14 +5,14 @@ export const ROLE = {
   doctor: "DOCTOR4011",
 };
 
-const DATA = {
+export const DATA = {
   booking: "BOOKING",
   patient: "PATIENT",
   doctor: "DOCTOR",
   admin: "ADMIN",
 };
 
-const DOCTOR = {
+export const DOCTOR = {
   umum: "UMUM",
   gigi: "GIGI",
 };

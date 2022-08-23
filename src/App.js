@@ -9,14 +9,19 @@ import { ROUTES } from "./constant/routes";
 import { CircularProgress } from "@mui/material";
 import VerifEmail from "./services/VerifEmail";
 import LandingPage from "./pages/LandingPage";
-import Profile from "./pages/ProfileWrapper";
-import { io } from "socket.io-client";
 import ForgotPassword from "./pages/ForgotPassword";
 import NavbarWrapper from "./components/navbar/NavbarWrapper";
-
+import ProfileWrapper from "./pages/ProfileWrapper";
+import RegistrationPage from "./pages/RegistrationPage";
+import { io } from "socket.io-client";
+import { useEffect, useState } from "react";
 // const io = new Server
 
 function App() {
+  const [socket, setSocket] = useState();
+  useEffect(() => {
+    setSocket(io("http://localhost:5000"));
+  }, []);
   return (
     <Router>
       <AuthProvider>
@@ -53,7 +58,13 @@ function App() {
             }
           />
           <Route element={<ProtectedRoute />}>
-            <Route path={ROUTES.PROFILE} element={<Profile />} />
+            <Route path={ROUTES.PROFILE} element={<ProfileWrapper />} />
+          </Route>
+          <Route element={<ProtectedRoute />}>
+            <Route
+              path={ROUTES.REGISTRATION}
+              element={<RegistrationPage socket={socket} />}
+            />
           </Route>
           <Route path={ROUTES.RESET_PASSWORD} element={<ForgotPassword />} />
 

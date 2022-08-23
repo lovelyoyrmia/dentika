@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  TextField,
-  Typography,
-  Fab,
-  Box,
-  Chip,
-  Avatar,
-} from "@mui/material";
+import { TextField, Typography, Fab, Box, Chip, Avatar } from "@mui/material";
 import { useAuth } from "../services/FirebaseAuthContext";
 import CircularProgress from "@mui/material/CircularProgress";
 import "./css/login.css";
@@ -41,7 +34,7 @@ export default function LoginPage() {
       setLoading(true);
       regis ? await signUp(email, password) : await signIn(email, password);
       handleDefault();
-      navigate(ROUTES.DASHBOARD);
+      navigate(ROUTES.EMAILVERIF);
     } catch (error) {
       const err = handleString(error.code);
       toast.error(err, {
@@ -56,7 +49,7 @@ export default function LoginPage() {
   const handleGoogle = async () => {
     try {
       await googleSignIn();
-      navigate(ROUTES.DASHBOARD);
+      navigate(ROUTES.EMAILVERIF);
     } catch (error) {
       const err = handleString(error.code);
       toast.error(err, {

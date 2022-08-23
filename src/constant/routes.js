@@ -5,4 +5,5 @@ export const ROUTES = {
   EMAILVERIF: "/emailverification",
   PROFILE: "/profile",
   RESET_PASSWORD: "/resetpassword",
+  REGISTRATION: "/registration",
 };

@@ -7,7 +7,6 @@ import {
   Toolbar,
   Typography,
   Button,
-  Avatar,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { ROUTES } from "../../constant/routes";
@@ -15,39 +14,19 @@ import { Link, useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import { AppBar } from "../topbar/TopbarComponents";
 import { useAuth } from "../../services/FirebaseAuthContext";
-import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import LogoutIcon from "@mui/icons-material/Logout";
-import HomeIcon from "@mui/icons-material/Home";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import Logo from "../../images/logo.jpg";
 
 export default function NavbarLanding() {
-  const { currentUser, signOut } = useAuth();
+  const { signOut } = useAuth();
   const [anchorElNav, setAnchorElNav] = useState();
-  const [anchorElUser, setAnchorElUser] = useState();
   const navigate = useNavigate();
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      navigate(ROUTES.LOGIN);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
   };
 
   const handleCloseNavMenu = () => {
     setAnchorElNav();
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser();
   };
 
   const pages = ["Products", "Pricing", "Blog"];

@@ -20,7 +20,7 @@ import { ROLE } from "../../../constant/role";
 import { BLOOD, GENDER, MARITAL_STATUS } from "../../../constant/constants";
 import { ROUTES } from "../../../constant/routes";
 
-export default function PatientForm() {
+export default function PatientForm({ socket }) {
   const { currentUser } = useAuth("");
   const [state, setState] = useState({
     name: "",
@@ -29,8 +29,8 @@ export default function PatientForm() {
     birthDate: "",
     birthPlace: "",
     gender: "",
-    weight: null,
-    height: null,
+    weight: "",
+    height: "",
     maritalStatus: "",
     phoneNumber: "",
     blood: "",
@@ -113,6 +113,10 @@ export default function PatientForm() {
         if (res.data["message"] === "Success") {
           console.log(res.data);
           setData(res.data);
+          socket?.emit("sendNotification", {
+            senderId: socket.id,
+            result: res.data["data"],
+          });
           setDefault();
           toast.success(
             "Registration sent ! This page will automatically redirect",
@@ -125,6 +129,9 @@ export default function PatientForm() {
           setTimeout(() => {
             navigate(ROUTES.PROFILE);
           }, 6000);
+        } else {
+          alert(res.data);
+          setLoading(false);
         }
       } else {
         toast.error("Phone number is not valid", {
@@ -179,10 +186,11 @@ export default function PatientForm() {
         width: {
           md: 1 / 1.5,
         },
-        flexGrow: 1,
       }}
     >
-      <div className="appointment-title">APPOINTMENT</div>
+      <div className="appointment-title" style={{ textAlign: "center" }}>
+        Patient Registration Form
+      </div>
       <form>
         {error ? (
           <div>
@@ -196,11 +204,11 @@ export default function PatientForm() {
         <Grid
           container
           spacing={{ md: 3, xs: 2 }}
-          columns={{ xs: 4, sm: 8, md: 12 }}
+          columns={{ xs: 2, sm: 4, md: 6 }}
         >
           {/* ======================================== */}
 
-          <Grid item xs={2} sm={4} md={4}>
+          <Grid item xs={2} sm={2} md>
             <Grid
               container
               direction="column"
@@ -266,7 +274,18 @@ export default function PatientForm() {
                   </MenuItem>
                 ))}
               </TextField>
-              <br />
+            </Grid>
+          </Grid>
+
+          {/* ======================================== */}
+
+          <Grid item xs={2} sm={2} md>
+            <Grid
+              container
+              direction="column"
+              justifyContent="center"
+              alignItems="strech"
+            >
               <TextField
                 id="cities"
                 label="Cities"
@@ -292,18 +311,37 @@ export default function PatientForm() {
                       );
                     })}
               </TextField>
-            </Grid>
-          </Grid>
+              <br />
+              <TextField
+                id="phoneNumber"
+                label="Phone Number"
+                className="appointment-item"
+                required
+                // type={"tel"}
+                // pattern="\+?([ -]?\d+)+|\(\d+\)([ -]\d+)"
+                value={state.phoneNumber}
+                onChange={handleChange("phoneNumber")}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">+62</InputAdornment>
+                  ),
+                }}
+                name="phone"
+                variant="outlined"
+              />
+              <br />
+              <TextField
+                id="age"
+                label="Age"
+                required
+                type={"number"}
+                className="appointment-item"
+                value={state.age}
+                onChange={handleChange("age")}
+                variant="outlined"
+              />
+              <br />
 
-          {/* ======================================== */}
-
-          <Grid item xs={2} sm={4} md={4}>
-            <Grid
-              container
-              direction="column"
-              justifyContent="center"
-              alignItems="strech"
-            >
               <TextField
                 id="placeOfBirth"
                 label="Birthplace"
@@ -324,7 +362,18 @@ export default function PatientForm() {
                 onChange={handleChange("birthDate")}
                 variant="outlined"
               />
-              <br />
+            </Grid>
+          </Grid>
+
+          {/* ======================================== */}
+
+          <Grid item xs={2} sm={2} md>
+            <Grid
+              container
+              direction="column"
+              justifyContent="center"
+              alignItems="strech"
+            >
               <TextField
                 id="gender"
                 label="Gender"
@@ -373,46 +422,6 @@ export default function PatientForm() {
                 }}
                 variant="outlined"
               />
-            </Grid>
-          </Grid>
-
-          {/* ======================================== */}
-
-          <Grid item xs={2} sm={4} md={4}>
-            <Grid
-              container
-              direction="column"
-              justifyContent="center"
-              alignItems="strech"
-            >
-              <TextField
-                id="age"
-                label="Age"
-                required
-                type={"number"}
-                className="appointment-item"
-                value={state.age}
-                onChange={handleChange("age")}
-                variant="outlined"
-              />
-              <br />
-              <TextField
-                id="phoneNumber"
-                label="Phone Number"
-                className="appointment-item"
-                required
-                // type={"tel"}
-                // pattern="\+?([ -]?\d+)+|\(\d+\)([ -]\d+)"
-                value={state.phoneNumber}
-                onChange={handleChange("phoneNumber")}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">+62</InputAdornment>
-                  ),
-                }}
-                name="phone"
-                variant="outlined"
-              />
               <br />
               <TextField
                 id="maritalStatus"
@@ -453,18 +462,21 @@ export default function PatientForm() {
 
         <br />
         {loading ? (
-          <div style={{ textAlign: "start" }}>
+          <div style={{ textAlign: "center" }}>
             <CircularProgress />
           </div>
         ) : (
-          <Button
-            variant="contained"
-            endIcon={<SendIcon />}
-            size="large"
-            onClick={handleValidation}
-          >
-            Send
-          </Button>
+          <div style={{ textAlign: "center" }}>
+            <Button
+              variant="contained"
+              endIcon={<SendIcon />}
+              size="large"
+              onClick={handleValidation}
+              sx={{ width: 1 / 2 }}
+            >
+              Send
+            </Button>
+          </div>
         )}
         <ToastContainer style={{ textAlign: "start" }} />
       </form>

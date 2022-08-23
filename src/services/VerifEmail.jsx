@@ -11,18 +11,19 @@ export default function VerifEmail({ children }) {
   let interval = useRef();
 
   useEffect(() => {
+    let sendInterval;
     if (currentUser !== null && !currentUser.emailVerified) {
-      setTimeout(sendEmailVerif, 500);
+      sendInterval = setTimeout(() => {
+        sendEmailVerif();
+      }, 1000);
       interval.current = setTimeout(() => {
         if (interval.current) {
           if (currentUser.emailVerified === emailVerified) {
             setEmailVerified(currentUser.emailVerified);
             setLoading(false);
-            clearTimeout(interval.current);
-            // window.location.reload(false);
           }
         }
-      }, 10 * 1000);
+      }, 20 * 1000);
       console.log(currentUser.emailVerified);
     } else {
       setEmailVerified(true);
@@ -30,12 +31,13 @@ export default function VerifEmail({ children }) {
     }
     return () => {
       clearTimeout(interval.current);
+      clearTimeout(sendInterval);
     };
   }, [currentUser, emailVerified, sendEmailVerif]);
 
   if (currentUser !== null) {
     if (emailVerified && !loading) {
-      return <Navigate to={ROUTES.DASHBOARD} />;
+      return <Navigate to={ROUTES.REGISTRATION} />;
     } else {
       return children;
     }
