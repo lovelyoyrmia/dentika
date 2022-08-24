@@ -34,6 +34,8 @@ export default function ProfileWrapper() {
           console.log(error.response.status);
           if (error.response.status === 404) {
             setData(error.response.status);
+          } else {
+            alert(error.message);
           }
         });
     };

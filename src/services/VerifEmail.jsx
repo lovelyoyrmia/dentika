@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { ROUTES } from "../constant/routes";
 import { useAuth } from "./FirebaseAuthContext";
@@ -8,20 +8,18 @@ export default function VerifEmail({ children }) {
   const [emailVerified, setEmailVerified] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  let interval = useRef();
-
   useEffect(() => {
+    let interval;
     let sendInterval;
     if (currentUser !== null && !currentUser.emailVerified) {
       sendInterval = setTimeout(() => {
         sendEmailVerif();
       }, 1000);
-      interval.current = setTimeout(() => {
-        if (interval.current) {
-          if (currentUser.emailVerified === emailVerified) {
-            setEmailVerified(currentUser.emailVerified);
-            setLoading(false);
-          }
+      interval = setInterval(() => {
+        if (currentUser.emailVerified === emailVerified) {
+          setEmailVerified(currentUser.emailVerified);
+          setLoading(false);
+          window.location.reload(false);
         }
       }, 20 * 1000);
       console.log(currentUser.emailVerified);
@@ -30,14 +28,14 @@ export default function VerifEmail({ children }) {
       setLoading(false);
     }
     return () => {
-      clearTimeout(interval.current);
+      clearInterval(interval);
       clearTimeout(sendInterval);
     };
   }, [currentUser, emailVerified, sendEmailVerif]);
 
   if (currentUser !== null) {
     if (emailVerified && !loading) {
-      return <Navigate to={ROUTES.REGISTRATION} />;
+      return <Navigate to={ROUTES.PROFILE} />;
     } else {
       return children;
     }

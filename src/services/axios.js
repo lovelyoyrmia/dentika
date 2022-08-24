@@ -12,7 +12,7 @@ export const adminAxios = axios.create({
   baseURL: "http://localhost:5000/api/admin",
 });
 
-export const appointAxios = axios.create({
+export const bookingAxios = axios.create({
   baseURL: "http://localhost:5000/api/appointment",
 });
 

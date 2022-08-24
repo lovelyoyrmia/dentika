@@ -42,7 +42,6 @@ export default function PatientForm({ socket }) {
   const [cities, setCities] = useState([]);
   const [regencies, setRegencies] = useState([]);
   const [provinces, setProvinces] = useState([]);
-  const [data, setData] = useState();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
@@ -112,9 +111,9 @@ export default function PatientForm({ socket }) {
         const res = await patientAxios.post("/addData", data);
         if (res.data["message"] === "Success") {
           console.log(res.data);
-          setData(res.data);
-          socket?.emit("sendNotification", {
-            senderId: socket.id,
+          localStorage.setItem("data", JSON.stringify(res.data["data"]));
+          socket.emit("sendNotification", {
+            senderId: res.data["data"]["uid"],
             result: res.data["data"],
           });
           setDefault();
@@ -122,13 +121,13 @@ export default function PatientForm({ socket }) {
             "Registration sent ! This page will automatically redirect",
             {
               position: "top-right",
-              autoClose: 5000,
+              autoClose: 3000,
               pauseOnHover: false,
             }
           );
           setTimeout(() => {
             navigate(ROUTES.PROFILE);
-          }, 6000);
+          }, 4000);
         } else {
           alert(res.data);
           setLoading(false);

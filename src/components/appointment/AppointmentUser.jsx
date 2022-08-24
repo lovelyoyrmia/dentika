@@ -11,13 +11,13 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import SendIcon from "@mui/icons-material/Send";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./appointment.css";
 import { useAuth } from "../../services/FirebaseAuthContext";
 import moment from "moment";
 import { toast, ToastContainer } from "react-toastify";
 import { handleAccessToken } from "../../utils/utils";
-import { setAuthToken, appointAxios } from "../../services/axios";
+import { setAuthToken, bookingAxios } from "../../services/axios";
 import { ROLE } from "../../constant/role";
 
 export default function AppointmentUser() {
@@ -28,7 +28,6 @@ export default function AppointmentUser() {
     symptoms: "",
   });
   const [date, setDate] = useState(new Date());
-  const [data, setData] = useState();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
@@ -94,11 +93,10 @@ export default function AppointmentUser() {
           },
         };
         const token = handleAccessToken(currentUser);
-        setAuthToken(appointAxios, token);
-        const res = await appointAxios.post("/addData", data);
+        setAuthToken(bookingAxios, token);
+        const res = await bookingAxios.post("/addData", data);
         if (res.data["message"] === "Success") {
           console.log(res.data);
-          setData(res.data);
           setDefault();
           toast.success("Appointment sent !", {
             position: "top-right",
@@ -116,19 +114,17 @@ export default function AppointmentUser() {
     <Box
       sx={{
         border: 1,
-        p: 3,
-        margin: 2,
+        p: 2,
+        margin: 1,
         borderRadius: 2,
-        width: 1 / 2,
         flexGrow: 1,
       }}
     >
-      <div className="appointment-title">APPOINTMENT</div>
       <form>
         <LocalizationProvider dateAdapter={AdapterMoment}>
           {error ? (
             <div>
-              <Alert severity="error" sx={{ my: 2 }}>
+              <Alert severity="error" sx={{ mb: 2 }}>
                 Indicates a required field
               </Alert>
             </div>

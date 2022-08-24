@@ -8,13 +8,18 @@ import { ROUTES } from "../constant/routes";
 import { patientAxios, setAuthToken } from "../services/axios";
 import { useAuth } from "../services/FirebaseAuthContext";
 import { handleAccessToken } from "../utils/utils";
+import { io } from "socket.io-client";
 
-export default function RegistrationPage({ socket }) {
+export default function RegistrationPage() {
   const { currentUser } = useAuth();
   const [data, setData] = useState("");
+  const [socket, setSocket] = useState();
   const [error, setError] = useState(true);
   const [loading, setLoading] = useState(false);
   const token = handleAccessToken(currentUser);
+  useEffect(() => {
+    setSocket(io("http://localhost:5000"));
+  }, []);
 
   useEffect(() => {
     const checkVerified = () => {
@@ -47,6 +52,8 @@ export default function RegistrationPage({ socket }) {
             setData(error.response.status);
             setError(false);
             setLoading(false);
+          } else {
+            alert(error.message);
           }
         });
     };
@@ -57,19 +64,29 @@ export default function RegistrationPage({ socket }) {
   }, [currentUser.email, currentUser.uid, token]);
   return (
     <>
-      <Box
-        sx={{
-          width: "100%",
-          height: "80vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        {!loading && !error ? (
-          data === 404 ? (
+      {!loading && !error ? (
+        data === 404 ? (
+          <Box
+            sx={{
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             <PatientForm socket={socket} />
-          ) : (
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              width: "100%",
+              height: "80vh",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             <Alert severity="info">
               You have registered.{" "}
               <span>
@@ -77,11 +94,21 @@ export default function RegistrationPage({ socket }) {
               </span>
               <span>to go to your profile</span>
             </Alert>
-          )
-        ) : (
+          </Box>
+        )
+      ) : (
+        <Box
+          sx={{
+            width: "100%",
+            height: "80vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <CircularProgress />
-        )}
-      </Box>
+        </Box>
+      )}
       <ToastContainer />
     </>
   );

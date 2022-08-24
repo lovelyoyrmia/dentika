@@ -5,8 +5,7 @@ import NavbarLanding from "./NavbarLanding";
 export default function NavbarWrapper() {
   const { currentUser } = useAuth();
 
-
-  if (currentUser) {
+  if (currentUser && currentUser.emailVerified) {
     return <Navbar />;
   } else {
     return <NavbarLanding />;

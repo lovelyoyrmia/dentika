@@ -13,15 +13,9 @@ import ForgotPassword from "./pages/ForgotPassword";
 import NavbarWrapper from "./components/navbar/NavbarWrapper";
 import ProfileWrapper from "./pages/ProfileWrapper";
 import RegistrationPage from "./pages/RegistrationPage";
-import { io } from "socket.io-client";
-import { useEffect, useState } from "react";
-// const io = new Server
+import { ListSidebar } from "./constant/constants";
 
 function App() {
-  const [socket, setSocket] = useState();
-  useEffect(() => {
-    setSocket(io("http://localhost:5000"));
-  }, []);
   return (
     <Router>
       <AuthProvider>
@@ -30,6 +24,7 @@ function App() {
           {/* PUBLIC ROUTE */}
           <Route exact path={ROUTES.HOME} element={<LandingPage />} />
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+          <Route path={ROUTES.RESET_PASSWORD} element={<ForgotPassword />} />
 
           {/* AUTHENTICATION PROTECTED ROUTE */}
           <Route element={<ProtectedRoute />}>
@@ -44,7 +39,7 @@ function App() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    height: "100vh",
+                    height: "80vh",
                   }}
                 >
                   <div style={{ textAlign: "center" }}>
@@ -58,15 +53,21 @@ function App() {
             }
           />
           <Route element={<ProtectedRoute />}>
-            <Route path={ROUTES.PROFILE} element={<ProfileWrapper />} />
+            <Route path={ROUTES.PROFILE} element={<ProfileWrapper />}>
+              {ListSidebar.map((value) => {
+                return (
+                  <Route
+                    key={value.id}
+                    path={value.path}
+                    element={value.element}
+                  />
+                );
+              })}
+            </Route>
           </Route>
           <Route element={<ProtectedRoute />}>
-            <Route
-              path={ROUTES.REGISTRATION}
-              element={<RegistrationPage socket={socket} />}
-            />
+            <Route path={ROUTES.REGISTRATION} element={<RegistrationPage />} />
           </Route>
-          <Route path={ROUTES.RESET_PASSWORD} element={<ForgotPassword />} />
 
           {/* MISSING PAGE */}
           <Route path="*" element={<PageNotFound />} />
