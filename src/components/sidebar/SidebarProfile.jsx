@@ -12,15 +12,15 @@ import {
   Badge,
 } from "@mui/material";
 import Logo from "../../images/logo.jpg";
-import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
-import EventNoteIcon from "@mui/icons-material/EventNote";
-import MedicationIcon from "@mui/icons-material/Medication";
-import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import { ListSidebar } from "../../constant/constants";
 import { useNavigate } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useAuth } from "../../services/FirebaseAuthContext";
 import { ROUTES } from "../../constant/routes";
+// import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
+// import EventNoteIcon from "@mui/icons-material/EventNote";
+// import MedicationIcon from "@mui/icons-material/Medication";
+// import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 
 export default function SidebarProfile() {
   const { signOut } = useAuth();
@@ -60,21 +60,7 @@ export default function SidebarProfile() {
                 }}
               >
                 <ListItemIcon>
-                  {side.id === 0 ? (
-                    <PersonOutlineIcon />
-                  ) : side.id === 1 ? (
-                    <Badge>
-                      <EventNoteIcon />
-                    </Badge>
-                  ) : side.id === 2 ? (
-                    <Badge>
-                      <NotificationsNoneIcon />
-                    </Badge>
-                  ) : (
-                    <Badge>
-                      <MedicationIcon />
-                    </Badge>
-                  )}
+                  <Badge>{side.icon}</Badge>
                 </ListItemIcon>
                 <ListItemText primary={side.name} />
               </ListItemButton>

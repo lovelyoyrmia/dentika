@@ -5,33 +5,40 @@ import { patientAxios } from "../services/axios";
 import { useAuth } from "../services/FirebaseAuthContext";
 import { Outlet } from "react-router-dom";
 import SidebarProfile from "../components/sidebar/SidebarProfile";
+import { useNetwork } from "../utils/utils";
 
 export default function ProfilePage() {
-  const { currentUser } = useAuth();
-  const [data, setData] = useState({});
-  useEffect(() => {
-    let interval = setTimeout(() => {
-      const req = {
-        role: {
-          PATIENT: ROLE.patient,
-        },
-        email: currentUser.email,
-      };
-      patientAxios
-        .post("/getData/" + currentUser.uid, req)
-        .then((res) => {
-          if (res.status === 200) {
-            setData((prev) => ({ ...prev, ...res.data["data"] }));
-          }
-        })
-        .catch((error) => {
-          alert(error.message);
-        });
-    }, 1000);
-    return () => {
-      clearTimeout(interval);
-    };
-  }, [currentUser.email, currentUser.uid]);
+  // const { currentUser } = useAuth();
+  // const [data, setData] = useState({});
+  // const isOnline = useNetwork();
+  // if (isOnline) {
+  //   alert("online");
+  // } else {
+  //   alert("offline");
+  // }
+  // useEffect(() => {
+  //   let interval = setTimeout(() => {
+  //     const req = {
+  //       role: {
+  //         PATIENT: ROLE.patient,
+  //       },
+  //       email: currentUser.email,
+  //     };
+  //     patientAxios
+  //       .post("/getData/" + currentUser.uid, req)
+  //       .then((res) => {
+  //         if (res.status === 200) {
+  //           setData((prev) => ({ ...prev, ...res.data["data"] }));
+  //         }
+  //       })
+  //       .catch((error) => {
+  //         alert(error.message);
+  //       });
+  //   }, 1000);
+  //   return () => {
+  //     clearTimeout(interval);
+  //   };
+  // }, [currentUser.email, currentUser.uid]);
   return (
     <>
       <Box sx={{ display: "flex" }}>

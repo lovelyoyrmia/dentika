@@ -1,12 +1,13 @@
 import React from "react";
-import AppointmentUser from "../components/appointment/AppointmentUser";
+// import AppointmentUser from "../components/appointment/AppointmentUser";
 
 export default function Home() {
   return (
     <>
       {/* <Navbar /> */}
-      <AppointmentUser />
+      {/* <AppointmentUser /> */}
       {/* <PatientForm /> */}
+      <div></div>
     </>
   );
 }

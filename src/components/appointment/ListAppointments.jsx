@@ -27,6 +27,8 @@ import SortIcon from "@mui/icons-material/Sort";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import ReplayIcon from "@mui/icons-material/Replay";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import moment from "moment";
 import AppointmentUser from "./AppointmentUser";
 
@@ -36,6 +38,7 @@ export default function ListAppointments() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [open, setOpen] = useState(false);
+  const [edit, setEdit] = useState(false);
   const token = handleAccessToken(currentUser);
 
   const handleSortByAppointment = () => {
@@ -65,6 +68,24 @@ export default function ListAppointments() {
     }, 1000);
   };
 
+  const handleDeleteId = (id) => {
+    const req = {
+      role: {
+        PATIENT: ROLE.patient,
+      },
+      email: currentUser.email,
+      uid: currentUser.uid,
+    };
+    setLoading(true);
+    setAuthToken(bookingAxios, token);
+    bookingAxios.post("/deleteId/" + id, req).then((res) => {
+      if (res.status === 200) {
+        setLoading(false);
+        getAppointments();
+      }
+    });
+  };
+
   const getAppointments = useCallback(() => {
     const req = {
       role: {
@@ -87,6 +108,7 @@ export default function ListAppointments() {
           });
           setListAppointments(response);
           setLoading(false);
+          console.log(response);
         }
       })
       .catch((error) => {
@@ -154,28 +176,7 @@ export default function ListAppointments() {
             Book Appointment
           </Button>
         </Box>
-        <Dialog open={open} fullWidth={true} maxWidth="md">
-          <DialogTitle>
-            BOOK APPOINTMENT
-            <IconButton
-              aria-label="close"
-              onClick={() => {
-                setOpen(false);
-              }}
-              sx={{
-                position: "absolute",
-                right: 8,
-                top: 8,
-                color: (theme) => theme.palette.grey[500],
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-          </DialogTitle>
-          <DialogContent>
-            <AppointmentUser />
-          </DialogContent>
-        </Dialog>
+        <DialogAppointment open={open} setOpen={setOpen} title="BOOK" />
         {loading ? (
           <Box
             sx={{
@@ -207,25 +208,54 @@ export default function ListAppointments() {
                     border: 0.5,
                     borderRadius: 5,
                     display: "flex",
-                    alignItems: "start",
-                    flexDirection: "column",
+                    justifyContent: "space-between",
                   }}
                 >
-                  <Typography sx={{ fontWeight: "500", fontSize: "20px" }}>
-                    {appoint.option}
-                  </Typography>
-                  <Typography sx={{ fontSize: "18px" }}>
-                    <span>Created At : </span>
-                    <span>{createdAt}</span>
-                  </Typography>
-                  <Typography sx={{ fontSize: "18px" }}>
-                    <span>Appointment Date : </span>
-                    <span>{appointmentDate}</span>
-                  </Typography>
-                  <Typography sx={{ fontSize: "18px" }}>
-                    <span>Symptoms : </span>
-                    <span>{appoint.symptoms}</span>
-                  </Typography>
+                  <Box sx={{ alignItems: "start", flexDirection: "column" }}>
+                    <Typography sx={{ fontWeight: "500", fontSize: "20px" }}>
+                      {appoint.option}
+                    </Typography>
+                    <Typography sx={{ fontSize: "18px" }}>
+                      <span>Created At : </span>
+                      <span>{createdAt}</span>
+                    </Typography>
+                    <Typography sx={{ fontSize: "18px" }}>
+                      <span>Appointment Date : </span>
+                      <span>{appointmentDate}</span>
+                    </Typography>
+                    <Typography sx={{ fontSize: "18px" }}>
+                      <span>Symptoms : </span>
+                      <span>{appoint.symptoms}</span>
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      width: "6vw",
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <IconButton
+                      onClick={() => {
+                        setEdit(true);
+                      }}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => {
+                        handleDeleteId(appoint.docId);
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                  <DialogAppointment
+                    appoint={appoint}
+                    open={edit}
+                    setOpen={setEdit}
+                    title="EDIT"
+                  />
                 </ListItem>
               );
             })}
@@ -244,5 +274,32 @@ export default function ListAppointments() {
         )}
       </Box>
     </Box>
+  );
+}
+
+export function DialogAppointment({ open, setOpen, appoint, title }) {
+  return (
+    <Dialog open={open} fullWidth={true} maxWidth="md">
+      <DialogTitle>
+        {title} APPOINTMENT
+        <IconButton
+          aria-label="close"
+          onClick={() => {
+            setOpen(false);
+          }}
+          sx={{
+            position: "absolute",
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent>
+        <AppointmentUser patient={appoint} />
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -20,14 +20,16 @@ import { handleAccessToken } from "../../utils/utils";
 import { setAuthToken, bookingAxios } from "../../services/axios";
 import { ROLE } from "../../constant/role";
 
-export default function AppointmentUser() {
+export default function AppointmentUser({ patient }) {
   const { currentUser } = useAuth("");
   const [state, setState] = useState({
-    name: "",
-    doctor: "",
-    symptoms: "",
+    name: patient ? patient.name : "",
+    doctor: patient ? patient.option : "",
+    symptoms: patient ? patient.symptoms : "",
   });
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(
+    patient ? patient.appointmentDate : new Date()
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
@@ -53,7 +55,7 @@ export default function AppointmentUser() {
       date !== null &&
       state.doctor !== null
     ) {
-      postData();
+      patient ? editData() : postData();
       setError(false);
     } else {
       setError(true);
@@ -66,6 +68,51 @@ export default function AppointmentUser() {
       doctor: "",
       symptoms: "",
     });
+  };
+
+  const editData = async () => {
+    try {
+      setLoading(true);
+      const now = moment().format("YYYY-MM-DD HH:mm:ss");
+      const appointmentDate = moment(date).format("YYYY-MM-DD HH:mm:ss");
+      const isAfter = moment(now).isAfter(appointmentDate);
+
+      if (isAfter) {
+        toast.error("Appointment date should be after the current date", {
+          position: "top-right",
+          autoClose: 5000,
+        });
+      } else {
+        const data = {
+          uid: currentUser.uid,
+          name: state.name,
+          email: currentUser.email,
+          symptoms: state.symptoms,
+          option: state.doctor,
+          date: appointmentDate,
+          role: {
+            PATIENT: ROLE.patient,
+          },
+        };
+        const token = handleAccessToken(currentUser);
+        setAuthToken(bookingAxios, token);
+        const res = await bookingAxios.put(
+          "/updateData/" + patient.docId,
+          data
+        );
+        if (res.data["message"] === "Success") {
+          console.log(res.data);
+          setDefault();
+          toast.success("Appointment sent !", {
+            position: "top-right",
+            autoClose: 5000,
+          });
+        }
+      }
+    } catch (error) {
+      alert(error.message);
+    }
+    setLoading(false);
   };
 
   const postData = async () => {

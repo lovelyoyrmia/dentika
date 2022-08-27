@@ -10,14 +10,12 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { ROUTES } from "../../constant/routes";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import { AppBar } from "../topbar/TopbarComponents";
-import { useAuth } from "../../services/FirebaseAuthContext";
 import Logo from "../../images/logo.jpg";
 
 export default function NavbarLanding() {
-  const { signOut } = useAuth();
   const [anchorElNav, setAnchorElNav] = useState();
   const navigate = useNavigate();
 
@@ -30,12 +28,7 @@ export default function NavbarLanding() {
   };
 
   const pages = ["Products", "Pricing", "Blog"];
-  // const settings = [
-  //   { id: 1, value: "Profile" },
-  //   { id: 2, value: "Account" },
-  //   { id: 3, value: "Dashboard" },
-  //   { id: 4, value: "Logout" },
-  // ];
+
   return (
     <AppBar position="static" elevation={0} sx={{ py: 2 }}>
       <Container maxWidth="xl">
@@ -105,6 +98,15 @@ export default function NavbarLanding() {
                 {page}
               </Button>
             ))}
+          </Box>
+          <Box>
+            <Button
+              onClick={() => {
+                navigate(ROUTES.LOGIN);
+              }}
+            >
+              Login
+            </Button>
           </Box>
         </Toolbar>
       </Container>

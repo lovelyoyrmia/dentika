@@ -16,12 +16,10 @@ import { Link, useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import { AppBar } from "../topbar/TopbarComponents";
 import { useAuth } from "../../services/FirebaseAuthContext";
-import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import DashboardIcon from "@mui/icons-material/Dashboard";
 import LogoutIcon from "@mui/icons-material/Logout";
-import HomeIcon from "@mui/icons-material/Home";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import Logo from "../../images/logo.jpg";
+import { ListSidebar } from "../../constant/constants";
 
 export default function Navbar() {
   const { currentUser, signOut } = useAuth();
@@ -145,7 +143,9 @@ export default function Navbar() {
                   Hi,{" "}
                   {currentUser.displayName || currentUser?.email.split("@")[0]}
                 </Typography>
+
                 <Avatar alt="Photo" src={currentUser.photoURL || ""} />
+
                 <ArrowDropDownIcon
                   sx={{ display: { xs: "block", md: "none" }, ml: 1 }}
                 />
@@ -166,43 +166,33 @@ export default function Navbar() {
                 open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}
               >
-                <MenuItem key={0} onClick={handleCloseUserMenu}>
-                  <Link
-                    to={ROUTES.HOME}
-                    className="link"
-                    style={{ display: "flex" }}
-                  >
-                    <HomeIcon sx={{ fontSize: 22, mr: 1 }} />
-                    <Typography textAlign="center">Home</Typography>
-                  </Link>
-                </MenuItem>
-                <MenuItem key={1} onClick={handleCloseUserMenu}>
-                  <Link
-                    to={ROUTES.PROFILE}
-                    className="link"
-                    style={{ display: "flex" }}
-                  >
-                    <PersonOutlineIcon sx={{ fontSize: 22, mr: 1 }} />
-                    <Typography textAlign="center">Profile</Typography>
-                  </Link>
-                </MenuItem>
-                <MenuItem key={2} onClick={handleCloseUserMenu}>
-                  <Link
-                    to={ROUTES.DASHBOARD}
-                    className="link"
-                    style={{ display: "flex" }}
-                  >
-                    <DashboardIcon sx={{ fontSize: 22, mr: 1 }} />
-                    <Typography textAlign="center">Dashboard</Typography>
-                  </Link>
-                </MenuItem>
+                {ListSidebar.map((side) => {
+                  let path = side.path.replace("/profile", "");
+                  path = `${ROUTES.PROFILE}/${path}`;
+                  return (
+                    <MenuItem key={side.id} onClick={handleCloseUserMenu}>
+                      <Link
+                        to={path}
+                        className="link"
+                        style={{ display: "flex" }}
+                      >
+                        {side.icon}
+                        <Typography sx={{ ml: 1 }} textAlign="center">
+                          {side.name}
+                        </Typography>
+                      </Link>
+                    </MenuItem>
+                  );
+                })}
                 <MenuItem
-                  key={3}
+                  key={10}
                   onClick={handleLogout}
                   style={{ display: "flex" }}
                 >
-                  <LogoutIcon sx={{ fontSize: 22, mr: 1 }} />
-                  <Typography textAlign="center">Logout</Typography>
+                  <LogoutIcon />
+                  <Typography sx={{ ml: 1 }} textAlign="center">
+                    Logout
+                  </Typography>
                 </MenuItem>
               </Menu>
             </Box>
@@ -225,7 +215,14 @@ export default function Navbar() {
                   {currentUser.displayName || currentUser?.email.split("@")[0]}
                 </Typography>
               </div>
-              <Avatar alt="Photo" src={currentUser.photoURL || ""} />
+              <div
+                onClick={() => {
+                  navigate(ROUTES.PROFILE);
+                }}
+                style={{ cursor: "pointer" }}
+              >
+                <Avatar alt="Photo" src={currentUser.photoURL || ""} />
+              </div>
             </Box>
           </Toolbar>
         </Container>

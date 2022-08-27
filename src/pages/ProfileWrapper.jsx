@@ -32,11 +32,7 @@ export default function ProfileWrapper() {
         })
         .catch((error) => {
           console.log(error.response.status);
-          if (error.response.status === 404) {
-            setData(error.response.status);
-          } else {
-            alert(error.message);
-          }
+          setData(error.response.status);
         });
     };
     let interval = setTimeout(checkVerified, 1000);
@@ -48,6 +44,8 @@ export default function ProfileWrapper() {
   switch (data) {
     case 404:
       return <Navigate to={ROUTES.REGISTRATION} />;
+    case 400:
+      return <div></div>;
     case 200:
       return <ProfilePage />;
     default:
