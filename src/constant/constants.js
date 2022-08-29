@@ -1,4 +1,6 @@
 import ListAppointments from "../components/appointment/ListAppointments";
+import Notifications from "../components/notifications/Notifications";
+import MedicalRecords from "../components/medical-records/MedicalRecords";
 import PatientProfile from "../components/registrations/patient/PatientProfile";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import EventNoteIcon from "@mui/icons-material/EventNote";
@@ -34,14 +36,14 @@ export const ListSidebar = [
     id: 2,
     name: "Notifications",
     path: "notifications",
-    element: <div>haiii</div>,
+    element: <Notifications />,
     icon: <NotificationsNoneIcon />,
   },
   {
     id: 3,
     name: "Medical Records",
     path: "medical-records",
-    element: <div>hauhsua</div>,
+    element: <MedicalRecords />,
     icon: <MedicationIcon />,
   },
 ];

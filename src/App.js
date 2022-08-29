@@ -14,6 +14,7 @@ import NavbarWrapper from "./components/navbar/NavbarWrapper";
 import ProfileWrapper from "./pages/ProfileWrapper";
 import RegistrationPage from "./pages/RegistrationPage";
 import { ListSidebar } from "./constant/constants";
+import EditProfile from "./components/registrations/patient/EditProfile";
 
 function App() {
   return (
@@ -63,6 +64,7 @@ function App() {
                   />
                 );
               })}
+              <Route path={ROUTES.EDIT_PROFILE} element={<EditProfile />} />
             </Route>
           </Route>
           <Route element={<ProtectedRoute />}>

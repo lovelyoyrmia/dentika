@@ -78,7 +78,7 @@ export default function LoginPage() {
         <span className="logo-span"> user</span>
       </Typography>
       <Box className="login-wrapper">
-        <form noValidate>
+        <form noValidate noAutocomplete>
           <TextField
             id="email"
             label="Email"

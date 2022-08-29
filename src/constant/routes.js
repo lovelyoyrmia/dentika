@@ -6,4 +6,5 @@ export const ROUTES = {
   PROFILE: "/profile",
   RESET_PASSWORD: "/reset-password",
   REGISTRATION: "/registration",
+  EDIT_PROFILE: "edit-profile",
 };

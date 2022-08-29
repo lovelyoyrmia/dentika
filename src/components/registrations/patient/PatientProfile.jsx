@@ -9,7 +9,12 @@ import {
   DialogActions,
   CircularProgress,
 } from "@mui/material";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import {
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
 import React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
@@ -20,6 +25,9 @@ import { handleAccessToken } from "../../../utils/utils";
 import Logo from "../../../images/logo.jpg";
 import { storage } from "../../../config/firebase-config";
 import { GridPatient } from "./GridPatient";
+import { useNavigate, Outlet } from "react-router";
+import { ToastContainer, toast } from "react-toastify";
+import { ROUTES } from "../../../constant/routes";
 
 export default function PatientProfile() {
   const { currentUser } = useAuth();
@@ -36,6 +44,7 @@ export default function PatientProfile() {
   const metadata = {
     contentType: "image/*",
   };
+  const navigate = useNavigate();
 
   const selectFile = (event) => {
     setState({
@@ -96,10 +105,47 @@ export default function PatientProfile() {
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((url) => {
           setUrl(url);
+          const data = {
+            email: currentUser.email,
+            role: {
+              PATIENT: ROLE.patient,
+            },
+            image_url: url,
+          };
+          patientAxios.put("/updateData/" + currentUser.uid, data);
         });
         setLoading(false);
       }
     );
+  };
+  const deleteFile = () => {
+    const storageRef = ref(storage, url || patient.image_url);
+    setLoading(true);
+    const data = {
+      email: currentUser.email,
+      role: {
+        PATIENT: ROLE.patient,
+      },
+      image_url: "",
+    };
+    patientAxios
+      .put("/updateData/" + currentUser.uid, data)
+      .then((res) => {
+        if (res.status === 200) {
+          deleteObject(storageRef);
+          setUrl("");
+          setPatient({ ...patient, image_url: "" });
+          toast.success("Delete Successfully", {
+            autoClose: 3000,
+            position: "top-center",
+            pauseOnHover: false,
+          });
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        alert(error.message);
+      });
   };
   useEffect(() => {
     const req = {
@@ -115,7 +161,6 @@ export default function PatientProfile() {
       .then((res) => {
         const dataPatient = res.data["data"];
         if (res.status === 200) {
-          // setPatient(data)
           setPatient((user) => ({ ...user, ...dataPatient }));
           setLoading(false);
         }
@@ -131,7 +176,12 @@ export default function PatientProfile() {
           url={url}
           patient={patient}
           setOpen={setOpen}
-          disabled={url ? false : true}
+          disabled={url || patient.image_url ? false : true}
+          deleteButton={deleteFile}
+          editButton={() => {
+            navigate(ROUTES.EDIT_PROFILE);
+            localStorage.setItem("Patient", JSON.stringify(patient));
+          }}
         />
       )}
       <Dialog
@@ -209,6 +259,8 @@ export default function PatientProfile() {
           </Button>
         </DialogActions>
       </Dialog>
+      <ToastContainer />
+      <Outlet />
     </Box>
   );
 }

@@ -20,30 +20,37 @@ import { ROLE } from "../../../constant/role";
 import { BLOOD, GENDER, MARITAL_STATUS } from "../../../constant/constants";
 import { ROUTES } from "../../../constant/routes";
 
-export default function PatientForm({ socket }) {
+export default function PatientForm({ socket, patient }) {
   const { currentUser } = useAuth("");
-  const [state, setState] = useState({
-    name: "",
-    email: currentUser.email || "",
-    age: "",
-    birthDate: "",
-    birthPlace: "",
-    gender: "",
-    weight: "",
-    height: "",
-    maritalStatus: "",
-    phoneNumber: "",
-    blood: "",
-    address1: "",
-    address2: "",
-    province: "",
-    city: "",
-  });
   const [cities, setCities] = useState([]);
   const [regencies, setRegencies] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const weight = patient ? patient.weight.match(/(\d+)/)[0] : "";
+  const height = patient ? patient.height.match(/(\d+)/)[0] : "";
+  const birthPlace = patient ? patient.birth.split(",")[0] : "";
+  const birthDate = patient ? patient.birth.split(",")[1].trim() : "";
+  const phoneNumber = patient
+    ? patient.phoneNumber.slice(3, patient.phoneNumber.length)
+    : "";
+  const [state, setState] = useState({
+    name: patient ? patient.name : "",
+    email: currentUser.email || "",
+    age: patient ? patient.age : "",
+    birthDate: birthDate,
+    birthPlace: birthPlace,
+    weight: weight,
+    height: height,
+    phoneNumber: phoneNumber,
+    gender: patient ? patient.gender : "",
+    maritalStatus: patient ? patient.maritalStatus : "",
+    blood: patient ? patient.blood : "",
+    address1: patient ? patient.address : "",
+    address2: "",
+    province: patient ? patient.province : "",
+    city: patient ? patient.city : "",
+  });
 
   const navigate = useNavigate();
 
@@ -64,7 +71,7 @@ export default function PatientForm({ socket }) {
       state.weight !== null &&
       state.phoneNumber !== ""
     ) {
-      postData();
+      patient ? editData() : postData();
       setError(false);
     } else {
       setError(true);
@@ -80,6 +87,68 @@ export default function PatientForm({ socket }) {
     }
     setState({ ...state, [prop]: event.target.value });
     setError(false);
+  };
+
+  const editData = async () => {
+    try {
+      setLoading(true);
+      const tel = `+62${state.phoneNumber}`;
+      if (tel.match(/^(\+62|62|0)8[1-9][0-9]{6,9}$/)) {
+        const data = {
+          uid: currentUser.uid,
+          name: state.name,
+          email: state.email,
+          age: state.age,
+          birth: `${state.birthPlace}, ${state.birthDate}`,
+          gender: state.gender,
+          weight: `${state.weight} kg`,
+          height: `${state.height} cm`,
+          maritalStatus: state.maritalStatus,
+          phoneNumber: tel,
+          blood: state.blood,
+          address: `${state.address1}.` + state.address2 || "",
+          province: state.province,
+          city: state.city,
+          role: {
+            PATIENT: ROLE.patient,
+          },
+        };
+        const token = handleAccessToken(currentUser);
+        setAuthToken(patientAxios, token);
+        const res = await patientAxios.put(
+          "/updateData/" + currentUser.uid,
+          data
+        );
+        if (res.data["message"] === "Success") {
+          console.log(res.data);
+          // localStorage.setItem("data", JSON.stringify(res.data["data"]));
+          // socket.emit("sendNotification", {
+          //   senderId: res.data["data"]["uid"],
+          //   result: res.data["data"],
+          // });
+          setDefault();
+          toast.success("Edit Successfully, This page automatically redirect", {
+            position: "top-right",
+            autoClose: 3000,
+            pauseOnHover: false,
+          });
+          setTimeout(() => {
+            navigate(-1);
+          }, 4000);
+        } else {
+          setLoading(false);
+        }
+      } else {
+        toast.error("Phone number is not valid", {
+          position: "top-right",
+          autoClose: 5000,
+          pauseOnHover: false,
+        });
+      }
+    } catch (error) {
+      alert(error.message);
+    }
+    setLoading(false);
   };
 
   const postData = async () => {
@@ -111,11 +180,11 @@ export default function PatientForm({ socket }) {
         const res = await patientAxios.post("/addData", data);
         if (res.data["message"] === "Success") {
           console.log(res.data);
-          localStorage.setItem("data", JSON.stringify(res.data["data"]));
-          socket.emit("sendNotification", {
-            senderId: res.data["data"]["uid"],
-            result: res.data["data"],
-          });
+          // localStorage.setItem("data", JSON.stringify(res.data["data"]));
+          // socket.emit("sendNotification", {
+          //   senderId: res.data["data"]["uid"],
+          //   result: res.data["data"],
+          // });
           setDefault();
           toast.success(
             "Registration sent ! This page will automatically redirect",
@@ -182,9 +251,11 @@ export default function PatientForm({ socket }) {
         p: 3,
         margin: 2,
         borderRadius: 2,
-        width: {
-          md: 1 / 1.5,
-        },
+        width: patient
+          ? {}
+          : {
+              md: 1 / 1.5,
+            },
       }}
     >
       <div className="appointment-title" style={{ textAlign: "center" }}>
@@ -316,8 +387,6 @@ export default function PatientForm({ socket }) {
                 label="Phone Number"
                 className="appointment-item"
                 required
-                // type={"tel"}
-                // pattern="\+?([ -]?\d+)+|\(\d+\)([ -]\d+)"
                 value={state.phoneNumber}
                 onChange={handleChange("phoneNumber")}
                 InputProps={{
