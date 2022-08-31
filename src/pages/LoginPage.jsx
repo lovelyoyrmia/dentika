@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { TextField, Typography, Fab, Box, Chip, Avatar } from "@mui/material";
+import {
+  TextField,
+  Typography,
+  Fab,
+  Box,
+  Chip,
+  Avatar,
+  Alert,
+} from "@mui/material";
 import { useAuth } from "../services/FirebaseAuthContext";
 import CircularProgress from "@mui/material/CircularProgress";
 import "./css/login.css";
@@ -9,37 +17,44 @@ import "react-toastify/dist/ReactToastify.css";
 import { ROUTES } from "../constant/routes";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [state, setState] = useState({
+    email: "",
+    password: "",
+  });
   const [regis, setRegis] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signUp, signIn, googleSignIn } = useAuth();
+  const [error, setError] = useState(false);
+  const { signUp, signIn, googleSignIn, currentUser } = useAuth();
 
   const navigate = useNavigate();
 
-  const handlePasswordChange = (event) => {
-    setPassword(event.target.value);
-  };
-  const handleEmailChange = (event) => {
-    setEmail(event.target.value);
+  const handleChange = (props) => (event) => {
+    setState({ ...state, [props]: event.target.value });
+    setError(false);
   };
 
   const handleDefault = () => {
-    setEmail("");
-    setPassword("");
+    setState({ email: "", password: "" });
   };
 
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      regis ? await signUp(email, password) : await signIn(email, password);
-      handleDefault();
-      navigate(ROUTES.EMAILVERIF);
+      if (state.email !== "" && state.password !== "") {
+        regis
+          ? await signUp(state.email, state.password)
+          : await signIn(state.email, state.password);
+        handleDefault();
+        navigate(ROUTES.EMAILVERIF, { replace: true });
+      } else {
+        setError(true);
+      }
     } catch (error) {
       const err = handleString(error.code);
       toast.error(err, {
         position: "top-center",
-        autoClose: 5000,
+        autoClose: 3000,
+        pauseOnHover: false,
         draggable: false,
       });
     }
@@ -49,7 +64,7 @@ export default function LoginPage() {
   const handleGoogle = async () => {
     try {
       await googleSignIn();
-      navigate(ROUTES.EMAILVERIF);
+      navigate(ROUTES.EMAILVERIF, { replace: true });
     } catch (error) {
       const err = handleString(error.code);
       toast.error(err, {
@@ -72,28 +87,65 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login">
-      <Typography className="login-title" variant="h6" noWrap component="div">
-        <span className="logo">Dentika</span>
-        <span className="logo-span"> user</span>
-      </Typography>
-      <Box className="login-wrapper">
-        <form noValidate noAutocomplete>
+    <Box
+      sx={{
+        height: "80vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        textAlign: "center",
+      }}
+    >
+      <Box
+        sx={{
+          width: { md: 1 / 2 },
+          backgroundColor: "#fffff0",
+          p: 2,
+          display: "flex",
+          justifyContent: "center",
+          borderRadius: 5,
+          boxShadow: "0 0 5px 3px #627d852e",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            width: { md: 1 / 2 },
+          }}
+        >
+          <Typography
+            className="login-title"
+            variant="h6"
+            noWrap
+            component="div"
+          >
+            <span className="logo">Dentika</span>
+            <span className="logo-span"> user</span>
+          </Typography>
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              Indicates a required field
+            </Alert>
+          )}
+
           <TextField
             id="email"
             label="Email"
             variant="outlined"
-            value={email}
-            onChange={handleEmailChange}
+            required
+            value={state.email}
+            onChange={handleChange("email")}
+            sx={{ mb: 2 }}
           />
-          <br />
           <TextField
             id="password"
             label="Password"
             variant="outlined"
             type={"password"}
-            value={password}
-            onChange={handlePasswordChange}
+            value={state.password}
+            required
+            onChange={handleChange("password")}
           />
           <Typography sx={{ textAlign: "end", my: 1 }}>
             <Link to={ROUTES.RESET_PASSWORD} className="link">
@@ -124,62 +176,62 @@ export default function LoginPage() {
               Register
             </Fab>
           )}
-        </form>
-      </Box>
-      {!regis ? (
-        <Typography
-          className="login-form"
-          variant="text"
-          noWrap
-          component="div"
-        >
-          <span>Do not have an Account ?</span>
-          <span className="regis" onClick={() => setRegis(!regis)}>
-            {" "}
-            Register.
-          </span>
-        </Typography>
-      ) : (
-        <Typography
-          className="login-form"
-          variant="text"
-          noWrap
-          component="div"
-        >
-          <span>Have an Account ?</span>
-          <span
-            className="regis"
-            onClick={() => {
-              setRegis(!regis);
-              handleDefault();
+
+          {!regis ? (
+            <Typography
+              className="login-form"
+              variant="text"
+              noWrap
+              component="div"
+            >
+              <span>Do not have an Account ?</span>
+              <span className="regis" onClick={() => setRegis(!regis)}>
+                {" "}
+                Register.
+              </span>
+            </Typography>
+          ) : (
+            <Typography
+              className="login-form"
+              variant="text"
+              noWrap
+              component="div"
+            >
+              <span>Have an Account ?</span>
+              <span
+                className="regis"
+                onClick={() => {
+                  setRegis(!regis);
+                  handleDefault();
+                }}
+              >
+                {" "}
+                Login.
+              </span>
+            </Typography>
+          )}
+
+          <Chip
+            onClick={handleGoogle}
+            // onDelete={}
+            size="large"
+            avatar={
+              <Avatar
+                alt="Google"
+                src="https://cdn-icons-png.flaticon.com/512/300/300221.png"
+              />
+            }
+            label="Sign in with Google"
+            variant="outlined"
+            sx={{
+              py: 2.5,
+              px: 1,
+              cursor: "pointer",
             }}
-          >
-            {" "}
-            Login.
-          </span>
-        </Typography>
-      )}
-
-      <Chip
-        onClick={handleGoogle}
-        // onDelete={}
-        size="large"
-        avatar={
-          <Avatar
-            alt="Google"
-            src="https://cdn-icons-png.flaticon.com/512/300/300221.png"
           />
-        }
-        label="Sign in with Google"
-        variant="outlined"
-        sx={{
-          py: 2.5,
-          px: 1,
-          cursor: "pointer",
-        }}
-      />
-
-      <ToastContainer />
-    </div>
+          <ToastContainer />
+        </Box>
+      </Box>
+    </Box>
   );
 }

@@ -40,6 +40,8 @@ export default function ListAppointments() {
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState(false);
   const token = handleAccessToken(currentUser);
+  let patient = localStorage.getItem("Patient");
+  patient = JSON.parse(patient);
 
   const handleSortByAppointment = () => {
     setLoading(true);
@@ -158,6 +160,7 @@ export default function ListAppointments() {
             </CDropdown>
             <IconButton
               sx={{ ml: 1 }}
+              disabled={!patient.isVerified}
               onClick={() => {
                 getAppointments();
               }}
@@ -168,7 +171,7 @@ export default function ListAppointments() {
           <Button
             variant="contained"
             endIcon={<AddIcon />}
-            //   size="large"
+            disabled={!patient.isVerified}
             onClick={() => {
               setOpen(true);
             }}
@@ -188,78 +191,91 @@ export default function ListAppointments() {
           >
             <CircularProgress />
           </Box>
-        ) : !error && listAppointments.length !== 0 ? (
-          <List>
-            {listAppointments.map((appoint) => {
-              const appointmentDate = moment(appoint.appointmentDate).format(
-                "MMMM D, YYYY hh:mm A"
-              );
-              const createdAt = moment(appoint.createdAt).format(
-                "MMMM D, YYYY hh:mm A"
-              );
+        ) : patient.isVerified ? (
+          !error && listAppointments.length !== 0 ? (
+            <List>
+              {listAppointments.map((appoint) => {
+                const appointmentDate = moment(appoint.appointmentDate).format(
+                  "MMMM D, YYYY hh:mm A"
+                );
+                const createdAt = moment(appoint.createdAt).format(
+                  "MMMM D, YYYY hh:mm A"
+                );
 
-              return (
-                <ListItem
-                  key={appoint.docId}
-                  sx={{
-                    mb: 2,
-                    px: 5,
-                    py: 1.5,
-                    border: 0.5,
-                    borderRadius: 5,
-                    display: "flex",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Box sx={{ alignItems: "start", flexDirection: "column" }}>
-                    <Typography sx={{ fontWeight: "500", fontSize: "20px" }}>
-                      {appoint.option}
-                    </Typography>
-                    <Typography sx={{ fontSize: "18px" }}>
-                      <span>Created At : </span>
-                      <span>{createdAt}</span>
-                    </Typography>
-                    <Typography sx={{ fontSize: "18px" }}>
-                      <span>Appointment Date : </span>
-                      <span>{appointmentDate}</span>
-                    </Typography>
-                    <Typography sx={{ fontSize: "18px" }}>
-                      <span>Symptoms : </span>
-                      <span>{appoint.symptoms}</span>
-                    </Typography>
-                  </Box>
-                  <Box
+                return (
+                  <ListItem
+                    key={appoint.docId}
                     sx={{
-                      width: "6vw",
+                      mb: 2,
+                      px: 5,
+                      py: 1.5,
+                      border: 0.5,
+                      borderRadius: 5,
                       display: "flex",
                       justifyContent: "space-between",
                     }}
                   >
-                    <IconButton
-                      onClick={() => {
-                        setEdit(true);
+                    <Box sx={{ alignItems: "start", flexDirection: "column" }}>
+                      <Typography sx={{ fontWeight: "500", fontSize: "20px" }}>
+                        {appoint.option}
+                      </Typography>
+                      <Typography sx={{ fontSize: "18px" }}>
+                        <span>Created At : </span>
+                        <span>{createdAt}</span>
+                      </Typography>
+                      <Typography sx={{ fontSize: "18px" }}>
+                        <span>Appointment Date : </span>
+                        <span>{appointmentDate}</span>
+                      </Typography>
+                      <Typography sx={{ fontSize: "18px" }}>
+                        <span>Symptoms : </span>
+                        <span>{appoint.symptoms}</span>
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        width: "6vw",
+                        display: "flex",
+                        justifyContent: "space-between",
                       }}
                     >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => {
-                        handleDeleteId(appoint.docId);
-                      }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Box>
-                  <DialogAppointment
-                    appoint={appoint}
-                    open={edit}
-                    setOpen={setEdit}
-                    title="EDIT"
-                  />
-                </ListItem>
-              );
-            })}
-          </List>
+                      <IconButton
+                        onClick={() => {
+                          setEdit(true);
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => {
+                          handleDeleteId(appoint.docId);
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Box>
+                    <DialogAppointment
+                      appoint={appoint}
+                      open={edit}
+                      setOpen={setEdit}
+                      title="EDIT"
+                    />
+                  </ListItem>
+                );
+              })}
+            </List>
+          ) : (
+            <Box
+              sx={{
+                height: "20vh",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Alert severity="info">You don't have any appoinments</Alert>
+            </Box>
+          )
         ) : (
           <Box
             sx={{
@@ -269,7 +285,7 @@ export default function ListAppointments() {
               alignItems: "center",
             }}
           >
-            <Alert severity="info">You don't have any appoinments</Alert>
+            <Alert severity="info">You need to wait for the verification</Alert>
           </Box>
         )}
       </Box>

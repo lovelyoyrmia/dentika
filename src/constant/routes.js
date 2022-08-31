@@ -8,3 +8,10 @@ export const ROUTES = {
   REGISTRATION: "/registration",
   EDIT_PROFILE: "edit-profile",
 };
+
+export const ADMIN_ROUTES = {
+  HOME: "/admin/*",
+  DASHBOARD: "dashboard",
+  LOGIN: "login",
+  PROFILE: "profile",
+};

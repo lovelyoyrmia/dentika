@@ -17,10 +17,6 @@ import { useNavigate } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useAuth } from "../../services/FirebaseAuthContext";
 import { ROUTES } from "../../constant/routes";
-// import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
-// import EventNoteIcon from "@mui/icons-material/EventNote";
-// import MedicationIcon from "@mui/icons-material/Medication";
-// import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 
 export default function SidebarProfile() {
   const { signOut } = useAuth();
@@ -30,6 +26,7 @@ export default function SidebarProfile() {
     try {
       await signOut();
       navigate(ROUTES.LOGIN);
+      localStorage.removeItem("Patient");
     } catch (error) {
       console.log(error);
     }

@@ -15,7 +15,7 @@ export default function VerifEmail({ children }) {
       sendInterval = setTimeout(() => {
         sendEmailVerif();
       }, 1000);
-      interval = setInterval(() => {
+      interval = setTimeout(() => {
         if (currentUser.emailVerified === emailVerified) {
           setEmailVerified(currentUser.emailVerified);
           setLoading(false);
@@ -28,7 +28,7 @@ export default function VerifEmail({ children }) {
       setLoading(false);
     }
     return () => {
-      clearInterval(interval);
+      clearTimeout(interval);
       clearTimeout(sendInterval);
     };
   }, [currentUser, emailVerified, sendEmailVerif]);

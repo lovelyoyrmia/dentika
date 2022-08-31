@@ -5,10 +5,12 @@ import {
   Button,
   Dialog,
   DialogTitle,
+  useMediaQuery,
   DialogContent,
   DialogActions,
   CircularProgress,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import {
   ref,
   uploadBytesResumable,
@@ -30,6 +32,9 @@ import { ToastContainer, toast } from "react-toastify";
 import { ROUTES } from "../../../constant/routes";
 
 export default function PatientProfile() {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+
   const { currentUser } = useAuth();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -144,9 +149,10 @@ export default function PatientProfile() {
         }
       })
       .catch((error) => {
-        alert(error.message);
+        alert(error.response.data.message);
       });
   };
+
   useEffect(() => {
     const req = {
       role: {
@@ -163,6 +169,7 @@ export default function PatientProfile() {
         if (res.status === 200) {
           setPatient((user) => ({ ...user, ...dataPatient }));
           setLoading(false);
+          localStorage.setItem("Patient", JSON.stringify(dataPatient));
         }
       })
       .catch((error) => {
@@ -180,7 +187,6 @@ export default function PatientProfile() {
           deleteButton={deleteFile}
           editButton={() => {
             navigate(ROUTES.EDIT_PROFILE);
-            localStorage.setItem("Patient", JSON.stringify(patient));
           }}
         />
       )}
@@ -197,7 +203,12 @@ export default function PatientProfile() {
         <CircularProgress />
         {state.progress && <div>{state.progress} %</div>}
       </Dialog>
-      <Dialog open={open} onClose={handleClose}>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        fullScreen={fullScreen}
+        maxWidth="lg"
+      >
         <DialogTitle sx={{ textAlign: "center" }}>Upload Image</DialogTitle>
         <DialogContent>
           <Box sx={{ display: "flex" }}>
