@@ -19,7 +19,7 @@ export function GridPatient({
               <Paper
                 elevation={4}
                 sx={{
-                  height: 228,
+                  height: 215,
                   backgroundImage:
                     url || patient.image_url
                       ? `url(${url || patient.image_url})`
@@ -41,9 +41,9 @@ export function GridPatient({
                   onClick={() => {
                     setOpen(true);
                   }}
-                  disabled={!patient.isVerified}
+                  disabled={!patient.is_verified}
                 >
-                  {patient.isVerified ? "Edit Image" : "Wait for verification"}
+                  {patient.is_verified ? "Edit Image" : "Wait for verification"}
                 </Button>
                 <IconButton disabled={disabled} onClick={deleteButton}>
                   <DeleteIcon />
@@ -52,6 +52,7 @@ export function GridPatient({
             </Grid>
             <GridItem label="Name" title={patient.name} />
             <GridItem label="Email" title={patient.email} />
+            <GridItem label="Phone Number" title={patient.phone_number} />
           </Grid>
         </Grid>
         <Grid item xs={2} sm={2} md>
@@ -61,15 +62,15 @@ export function GridPatient({
             <GridItem label="City" title={patient.city} />
             <GridItem label="Day of Birth" title={patient.birth} />
             <GridItem label="Age" title={patient.age} />
+            <GridItem label="Blood" title={patient.blood} />
           </Grid>
         </Grid>
         <Grid item xs={2} sm={2} md>
           <Grid container flexDirection={"column"}>
-            <GridItem label="Blood" title={patient.blood} />
             <GridItem label="Gender" title={patient.gender} />
             <GridItem label="Height" title={patient.height} />
             <GridItem label="Weight" title={patient.weight} />
-            <GridItem label="Status" title={patient.maritalStatus} />
+            <GridItem label="Status" title={patient.marital_status} />
           </Grid>
         </Grid>
       </Grid>
@@ -78,10 +79,10 @@ export function GridPatient({
           variant="contained"
           size="large"
           disabled={disabled}
-          sx={{ width: 1 / 3 }}
+          sx={{ width: { md: 1 / 3, sm: 1 / 2 } }}
           onClick={editButton}
         >
-          {patient.isVerified ? "Edit Profile" : "Wait for verification"}
+          {patient.is_verified ? "Edit Profile" : "Wait for verification"}
         </Button>
       </div>
     </Box>
@@ -92,7 +93,7 @@ export function GridItem({ label, title }) {
   return (
     <Grid item>
       <div style={{ padding: "2px 10px" }}>{label}</div>
-      <Paper elevation={3} sx={{ p: 1.5, mb: 2 }}>
+      <Paper elevation={3} sx={{ p: 1.5, mb: 1.5 }}>
         {title}
       </Paper>
     </Grid>

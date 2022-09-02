@@ -183,7 +183,9 @@ export default function PatientProfile() {
           url={url}
           patient={patient}
           setOpen={setOpen}
-          disabled={url || patient.image_url ? false : true}
+          disabled={
+            url || (patient.image_url && patient.is_verified) ? false : true
+          }
           deleteButton={deleteFile}
           editButton={() => {
             navigate(ROUTES.EDIT_PROFILE);
@@ -263,7 +265,7 @@ export default function PatientProfile() {
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
           <Button
-            disabled={state.currentFile ? false : true}
+            // disabled={state.currentFile ? false : true}
             onClick={uploadFileStorage}
           >
             Upload

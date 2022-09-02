@@ -32,7 +32,7 @@ export default function PatientForm({ socket, patient }) {
   const birthPlace = patient ? patient.birth.split(",")[0] : "";
   const birthDate = patient ? patient.birth.split(",")[1].trim() : "";
   const phoneNumber = patient
-    ? patient.phoneNumber.slice(3, patient.phoneNumber.length)
+    ? patient.phone_number.slice(3, patient.phone_number.length)
     : "";
   const [state, setState] = useState({
     name: patient ? patient.name : "",
@@ -44,7 +44,7 @@ export default function PatientForm({ socket, patient }) {
     height: height,
     phoneNumber: phoneNumber,
     gender: patient ? patient.gender : "",
-    maritalStatus: patient ? patient.maritalStatus : "",
+    maritalStatus: patient ? patient.marital_status : "",
     blood: patient ? patient.blood : "",
     address1: patient ? patient.address : "",
     address2: "",
@@ -301,6 +301,10 @@ export default function PatientForm({ socket, patient }) {
                 label="Email"
                 className="appointment-item"
                 required
+                InputProps={{
+                  readOnly: true,
+                }}
+                disabled
                 value={state.email}
                 onChange={handleChange("email")}
                 placeholder="Your Email"

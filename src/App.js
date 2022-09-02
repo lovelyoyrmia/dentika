@@ -47,9 +47,10 @@ function App() {
                   >
                     <div style={{ textAlign: "center" }}>
                       <CircularProgress />
-                      <br />
-                      <br />
-                      <div>Check your email for verification</div>
+
+                      <div style={{ marginTop: "10px" }}>
+                        Check your email for verification
+                      </div>
                     </div>
                   </div>
                 </VerifEmail>

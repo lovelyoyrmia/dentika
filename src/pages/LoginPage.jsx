@@ -145,6 +145,7 @@ export default function LoginPage() {
             type={"password"}
             value={state.password}
             required
+            autoComplete="current-password"
             onChange={handleChange("password")}
           />
           <Typography sx={{ textAlign: "end", my: 1 }}>

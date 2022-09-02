@@ -104,8 +104,8 @@ export default function ListAppointments() {
         if (res.status === 200) {
           const response = res.data["data"];
           response.sort((a, b) => {
-            const date1 = new Date(a.createdAt);
-            const date2 = new Date(b.createdAt);
+            const date1 = new Date(a.created_at);
+            const date2 = new Date(b.created_at);
             return date2 - date1;
           });
           setListAppointments(response);
@@ -160,7 +160,7 @@ export default function ListAppointments() {
             </CDropdown>
             <IconButton
               sx={{ ml: 1 }}
-              disabled={!patient.isVerified}
+              disabled={!patient.is_verified}
               onClick={() => {
                 getAppointments();
               }}
@@ -171,7 +171,7 @@ export default function ListAppointments() {
           <Button
             variant="contained"
             endIcon={<AddIcon />}
-            disabled={!patient.isVerified}
+            disabled={!patient.is_verified}
             onClick={() => {
               setOpen(true);
             }}
@@ -191,7 +191,7 @@ export default function ListAppointments() {
           >
             <CircularProgress />
           </Box>
-        ) : patient.isVerified ? (
+        ) : patient.is_verified ? (
           !error && listAppointments.length !== 0 ? (
             <List>
               {listAppointments.map((appoint) => {
